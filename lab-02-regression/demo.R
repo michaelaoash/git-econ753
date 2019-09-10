@@ -2,6 +2,7 @@
 ## Do these need (one-time) installation?
 library(tidyverse) ## Includes advanced data management and graphics
 library(haven) ## to read Stata and other data formats
+library(broom) ## Processing output
 library(lmtest) ## For robust standard errors
 library(sandwich) ## For robust standard errors
 library(Hmisc) ## For some nicely formatted summary stats
@@ -54,7 +55,6 @@ with(cps,tapply(exp(lnwage),list(year,as_factor(ethnic)),mean))
 
 
 
-
 cps <- mutate(cps,
               wage = exp(lnwage),
               college = (ed >= 16)
@@ -64,7 +64,7 @@ cps <- mutate(cps,
 ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun.y="mean")
 ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun.y="mean")
 
-ggplot(cps, aes(x=ed, y=exp(lnwage), color=fe)) + geom_point() + geom_smooth(method="lm")
+ggplot(cps, aes(x=ed, y=exp(lnwage))) + geom_point(aes(color=factor(fe))) + geom_smooth(method="lm")
 
 
 ## Create datasets limited to 1985 and 1978
@@ -73,7 +73,6 @@ cps78 <- filter(cps,year==1978)
 
 ## List the objects in R (should be three)
 ls()
-
 
 
 
@@ -86,11 +85,10 @@ coeftest(cps85.lm,vcov=vcovHC(cps85.lm,type="HC1"))
 
 
 ## Pooled and unpooled regressions (with interaction terms)
-cps.pooled.lm <- lm(lnwage ~ factor(fe) + marr + nonwh + ed + ex + exsq, data=cps85)
+cps.pooled.lm <- lm(lnwage ~ fe + marr + nonwh + ed + ex + exsq, data=cps85)
 summary(cps.pooled.lm)
-cps.separated.lm <- lm(lnwage ~ factor(fe)*( marr + nonwh + ed + ex + exsq ), data=cps85)
+cps.separated.lm <- lm(lnwage ~ fe*( marr + nonwh + ed + ex + exsq ), data=cps85)
 summary(cps.separated.lm)
-
 
 
 ## Oaxaca-Blinder decomposition
@@ -98,23 +96,23 @@ summary(cps.separated.lm)
 cps.lm.race <- by(cps78,cps78$nonwh,
                   function(x) lm(lnwage ~ fe + marr + ed + ex + exsq, data=x))
 
-
+cps.lm.race  <- group_by(cps78,nonwh) %>% do(cps.lm  = lm(lnwage ~ fe + marr + ed + ex + exsq, data=.))
+tidy(cps.lm.race, cps.lm)
 
 ## Create the constant term (for convenience)
 cps78$one <- 1
 
 ## Compute the average attributes by race
 cps.mean.race <- summarize_all(group_by(cps78,nonwh),mean)
-cps.mean.race <- select(cps.mean.race, lnwage,one,fe,marr,ed,ex,exsq)
-
+cps.mean.race <- select(cps.mean.race,lnwage,one,fe,marr,ed,ex,exsq)
 
 ## Extract average attributes by race
 (attr.w <- as.matrix(cps.mean.race)[1,2:7])
 (attr.b <- as.matrix(cps.mean.race)[2,2:7])
 
 ## Extract coefficients by race
-(coef.w <- as.matrix(sapply(cps.lm.race,coef))[1:6,1])
-(coef.b <- as.matrix(sapply(cps.lm.race,coef))[1:6,2])
+(coef.w <- as.matrix(sapply(cps.lm.race$cps.lm,coef))[1:6,1])
+(coef.b <- as.matrix(sapply(cps.lm.race$cps.lm,coef))[1:6,2])
 
 ## Difference in mean outcome
 as.matrix(cps.mean.race[2,1]) - as.matrix(cps.mean.race[1,1])
