@@ -1,60 +1,48 @@
-## Here is the path to the extra R libraries in Machmer W-13 only
-.libPaths(c("/home/r-data/Rlibs",.libPaths()))
-
-## Load the libraries that you will need.
-library(foreign) ## to read Stata and other data formats
+## Load the needed libraries
+## Do these need (one-time) installation?
+library(tidyverse) ## Includes advanced data management and graphics
+library(haven) ## to read Stata and other data formats
 library(lmtest) ## For robust standard errors
 library(sandwich) ## For robust standard errors
 library(Hmisc) ## For some nicely formatted summary stats
-library(pastecs) ## For some nicely formatted summary stats
-library(zoo) ## For time series objects
-library(dynlm) ## For dynamic linear model
 
-## Set some options
-## scipen controls scientific notation versus decimal places
+## Set some options scipen controls scientific notation versus
+## decimals (higher number = favor decimals over scientific notation)
 ## width controls the column width of output
 options(scipen=1000,width=200)
 
-
-
-
-## Some work with the Normalton Curfew Evaluation Berman, Chapter 5
-
-curfew <- read.dta("http://courses.umass.edu/econ452-maash/data/curfew.dta")
-summary(curfew)
-curfew.ym <- as.yearmon(paste(substr(curfew$MONTH,1,3),curfew$YEAR), "%b %Y")
-curfew <- subset(curfew,select=-MONTH)
-curfew.z <- zoo(curfew,order.by=curfew.ym)
-
-summary(dynlm(JUVARSTS ~ CURFEW,data=curfew.z))
-summary(dynlm(JUVARSTS ~ CURFEW + season(JUVARSTS),data=curfew.z))
-
-
-plot(curfew.z$CURFEW,curfew.z$JUVARSTS)
-plot(subset(curfew.z,select=c(CURFEW,JUVARSTS)))
-
-
-
 ## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
-library(foreign)
-cps <- read.dta("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
-tapply(exp(cps$lnwage),list(cps$year,cps$nonwh),mean)
-tapply(exp(cps$lnwage),list(cps$year,cps$nonwh,cps$fe),mean)
-
-barplot(tapply(exp(cps$lnwage),cps$fe,mean))
-
-barplot(tapply(exp(cps$lnwage),cps$occup,mean))
-
-barplot(table(cps$ind,cps$fe),legend=TRUE,beside=TRUE)
-
-barplot(prop.table(table(cps$ind,cps$fe),2),legend=TRUE,beside=TRUE)
+cps <- read_dta("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
 
 
+## list variables
+names(cps)
 
+## Basic summary statistics
+summary(cps)
+describe(cps)
 
-cps85 <- subset(cps,year==1985)
+## Some tabulation commands
+## and "with"
 
-cps78 <- subset(cps,year==1978)
+with(cps, table(occupation,fe))
+xtabs(~ occupation + fe, data=cps)
+xtabs(~ occupation + fe + year, data=cps)
+
+prop.table(xtabs(~ occupation + fe, data=cps))
+prop.table(xtabs(~ occupation + fe, data=cps), margin=2)
+
+with(cps,tapply(lnwage,list(year,nonwh),mean))
+with(cps,tapply(exp(lnwage),list(year,nonwh),mean))
+
+ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun.y="mean")
+ggplot(cps, aes(x=factor(fe), y=exp(lnwage))) + geom_bar(stat="summary", fun.y="mean")
+
+cps85 <- filter(cps,year==1985)
+cps78 <- filter(cps,year==1978)
+
+ls()
+
 
 
 ## Heteroskedasticity-consistent (robust) standard errors
@@ -62,13 +50,12 @@ cps85.lm <- lm(lnwage ~ fe + marr + nonwh + ed + ex + exsq, data=cps85)
 summary(cps85.lm)
 coeftest(cps85.lm,vcov=vcovHC(cps85.lm,type="HC1"))
 
-## Pooled and unpooled regressions (with interaction terms)
 
+## Pooled and unpooled regressions (with interaction terms)
 cps.pooled.lm <- lm(lnwage ~ factor(fe) + marr + nonwh + ed + ex + exsq, data=cps85)
 summary(cps.pooled.lm)
 cps.separated.lm <- lm(lnwage ~ factor(fe)*( marr + nonwh + ed + ex + exsq ), data=cps85)
 summary(cps.separated.lm)
-
 
 
 ## Oaxaca-Blinder decomposition
@@ -80,9 +67,9 @@ cps.lm.race <- by(cps78,cps78$nonwh,
 cps78$one <- 1
 
 ## Compute the average attributes by race
-(cps.mean.race <-
-aggregate(subset(cps78,select=c(lnwage,one,fe,marr,ed,ex,exsq)),
-          list(cps78$nonwh), mean))
+cps.mean.race <- summarize_all(group_by(cps78,nonwh),mean)
+cps.mean.race <- select(cps.mean.race, lnwage,one,fe,marr,ed,ex,exsq)
+
 
 
 ## Extract average attributes by race
@@ -112,59 +99,57 @@ attr.b %*% coef.b - attr.w %*% coef.w
 
 
 ## Read HMDA data from website.
-hmda <- read.dta("http://wps.aw.com/wps/media/objects/3254/3332253/datasets2e/datasets/hmda_aer.dta")
+hmda <- read_dta("hmda_sw.dta")
 
 ## Exclude applications for multifamily 
-hmda <- subset(hmda,s51!=3)
+hmda <- filter(hmda,s51!=3)
 ## Exclude applications withdrawn or incomplete
-hmda <- subset(hmda,s7!=4 & s7!=5)
+hmda <- filter(hmda,s7!=4 & s7!=5)
 ## Only home-purchase loans (not home improvement, refinance, etc.)
-hmda <- subset(hmda,s4==1)
+hmda <- filter(hmda,s4==1)
 ## Code deny
 hmda$deny.f <- factor(hmda$s7==3)
 hmda$deny <- 1*(hmda$s7==3)
 
 ## Limit sample to whites and blacks
-hmda <- subset(hmda,(s13==3)|(s13==5))
+hmda <- filter(hmda,(s13==3)|(s13==5))
 ## Make race a "factor"
 hmda$race <- relevel(factor(hmda$s13, label=c("black","nh.white")),ref="nh.white")
 
 ## Code some additional variables
-## All of these are explained in hmda.pdf 
-hmda$pi_rat <- hmda$s46/100
-hmda$black <- 1*(hmda$s13==3)
-hmda$hse_inc <- hmda$s45/100
-hmda$loan_val <- hmda$s6/hmda$s50
-hmda$ccred <- hmda$s43
-hmda$mcred <- hmda$s42
-hmda$pubrec <- 1*(hmda$s44>0)
-hmda$denpmi <- 1*(hmda$s53==1)
-hmda$selfemp <- 1*(hmda$s27a==1)
-hmda$married <- 1*(hmda$s23a=="M")
-hmda$single <- 1*(hmda$married==0)
-hmda$hischl <- 1*(hmda$school>=12)
-hmda$probunmp <- hmda$uria
-hmda$condo <- 1*(hmda$s51 == 1)
-hmda$ltv_med <- 1*(hmda$loan_val>=0.80)*(hmda$loan_val<=.95)
-hmda$ltv_high <- 1*(hmda$loan_val>0.95)
-hmda$blk_pi <- hmda$black*hmda$pi_rat
-hmda$blk_hse <- hmda$black*hmda$hse_inc
-hmda$ccred3 <- 1*(hmda$ccred==3) 
-hmda$ccred4 <- 1*(hmda$ccred==4)
-hmda$ccred5 <- 1*(hmda$ccred==5)
-hmda$ccred6 <- 1*(hmda$ccred==6)
-hmda$mcred3 <- 1*(hmda$mcred==3)
-hmda$mcred4 <- 1*(hmda$mcred==4)
+## All of these are explained in hmda.pdf
+hmda  <- mutate(hmda, 
+                pi_rat   = s46/100,
+                black    = 1*(s13==3),
+                hse_inc  = s45/100,
+                loan_val = s6/s50,
+                ccred    = s43,
+                mcred    = s42,
+                pubrec   = 1*(s44>0),
+                denpmi   = 1*(s53==1),
+                selfemp  = 1*(s27a==1),
+                married  = 1*(s23a=="M"),
+                single   = 1*(married==0),
+                hischl   = 1*(school>=12),
+                probunmp = uria,
+                condo    = 1*(s51 == 1),
+                ltv_med  = 1*(loan_val>=0.80)*(loan_val<=.95),
+                ltv_high = 1*(loan_val>0.95),
+                blk_pi   = black*pi_rat,
+                blk_hse  = black*hse_inc,
+                ccred3   = 1*(ccred==3) ,
+                ccred4   = 1*(ccred==4),
+                ccred5   = 1*(ccred==5),
+                ccred6   = 1*(ccred==6),
+                mcred3   = 1*(mcred==3),
+                mcred4   = 1*(mcred==4)
+                )
+
+summary( select(hmda,deny,black,pi_rat,hse_inc,ltv_med, ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp, mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))
 
 
-summary( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
-ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
-mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo)))
 
-by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,
-ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
-mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, summary)
-
+by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, summary)
 
 
 describe( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
