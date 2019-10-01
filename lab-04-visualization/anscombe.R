@@ -14,10 +14,10 @@ anscombe_tidy <- anscombe %>%
 anscombe_tidy
 
 summarize(group_by(anscombe_tidy,set),
-          mean(x), sd(y), mean(y), sd(y), cor(x,y), alpha=coef(lm(y ~ x))[1], beta=coef(lm(y ~ x))[2], R2=summary(lm(y ~ x))$r.squared 
+          mean(x), sd(x), mean(y), sd(y), cor(x,y), alpha=coef(lm(y ~ x))[1], beta=coef(lm(y ~ x))[2], R2=summary(lm(y ~ x))$r.squared 
           )
 
-ggplot(anscombe_tidy, aes(x, y)) +
+ggplot(anscombe_tidy, aes(x=x, y=y, color=set)) +
     geom_point() +
     facet_wrap(~ set) +
     geom_smooth(method = "lm", se = FALSE)
