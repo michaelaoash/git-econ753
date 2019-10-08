@@ -1,0 +1,257 @@
+#Bayesian Linear Regression with Conjugate Priors
+rm(list = ls())
+library(gridExtra) #For multiple plots on a graph
+library(mvtnorm) #For a multivariate t density
+library(coda) # To process Bayes simulations
+
+#Import data ####
+cps <- haven::read_dta(file = "./chap5-cps.dta.txt")
+#View(cps)
+#cps <- cps[1:100,] #Cut down dataset [to highlight effects of priors]
+
+#Format data for regression ####
+n <- length(cps$lnwage)
+y <- cps$lnwage
+x1 <- cps$ed - mean(cps$ed) #De-mean the education variable. Now the intercept will be lnwage at average education.
+X <- cbind(rep(1,n), x1)
+K <- dim(X)[2]
+
+#------------------------------------------------------------#
+#Likelihood ####
+# Our likelihood model is: y_i ~ N(alpha + beta*x1_i, 1/tau)
+# This is a standard Gaussian linear regression model, where alpha is the intercept, beta is slope, and tau is the precision (inverse variance) of the "error" term (implicit).
+# alpha, beta, and tau require prior densities
+
+#Plot Likelihood (as beta varies). This is for illustration; in practice, it's best not to use your actual data to plot your likelihood before you've constructed your priors.
+mod1 <- lm(y ~ x1, data = cps)
+beta.like <-  function(x) {
+  dnorm(x = x,  mean =mod1$coefficients[2], sd = sqrt(mean(mod1$residuals^2)*solve(t(X)%*%X)[2,2]))
+}
+x.vals <- seq(-0.2,0.2, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = beta.like, FUN.VALUE = 1)
+beta.like.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + geom_line() + expand_limits(y=0, x=0) + theme_classic() + ggtitle("Likelihood as beta varies") + xlab("beta") + ylab("Likelihood")
+beta.like.plot
+#------------------------------------------------------------#
+#------------------------------------------------------------#
+#------------------------------------------------------------#
+#We will consider various kinds of prior
+#Specify Standard "Reference Prior" Densities ####
+#We are using conjugate priors, which are priors that result in neat analytic posterior distributions.
+
+#The parameter-values below are "reference priors" used as standard reference-points, chosen to be very weakly informative. They're a decent starting point for an analysis, but should be revised if they yield crazy posteriors. (Here they're fine)
+
+#Gamma Prior on tau ~ Gamma(shape = a0, rate = b0). Mean = a0/b0, Var = a0/(b0)^2. See plots below.
+a0 <- 0.01 # Gamma "shape" parameter
+b0 <- 0.01 # Gamma "rate" parameter
+
+#Joint prior on alpha, beta, (given tau). 
+# A 2-d Gaussian with mean mu0 and precision (inverse variance) Lam0.
+mu0 <- c(0,0) #Prior means of alpha, beta, respectively.
+Lam0 <- diag(x = c(0.001,0.001),nrow = K) #Prior precision (inverse variance). Lower means "weaker" prior/less certainty.
+Disp0 <- solve(a0/b0*Lam0) #Prior dispersion matrix
+
+#------------------------------------------------------------#
+#Specify strong bad informative priors ####
+
+#Informative prior on tau. Mean = a0/b0, Var = a0/(b0)^2.
+# Here we'll choose a pretty unrealistic prior which assumes that the error has very low variance/ high precision, so we can put a more informative prior on beta. 
+a0 <- 1 # Gamma "shape" parameter.
+b0 <- 0.01 # Gamma "rate" parameter.
+
+#Informative prior on alpha: broadly plausible range of lnwage at average education is -0.69 (~$0.50/hr) to 3.91 (~$50/hr). Can make this a 95% region.
+mu0[1] <- mean(c(-0.69, 3.91))
+Disp0[1,1] <- abs((mu0[1] - (-0.69))/qt(p = 0.025, df = 2*a0))
+Lam0 <- solve(a0/b0*Disp0)
+
+#Bad Informative prior on beta:
+mu0[2] <- -0.1              #Implausible negative value
+Disp0[2,2] <- 0.00001        #0.0001 is on the order of 100 datapoints
+Lam0 <- solve(a0/b0*Disp0)
+
+
+
+#Specify weakly informative priors ####
+#Guidelines for informative priors.
+#Ideally, a Bayesian prior distribution is based on real-world knowledge. Here we'll try to keep 95% of prior probability within regions of broadly plausible parameter-values.
+#We are using conjugate priors, which are priors that result in neat analytic posterior distributions. Unfortunately, in this case conjugate priors have dependence between tau and coefficients alpha and beta. This means it's hard to be uninformative about tau while also being informative about alpha, beta. In particular, a0 shouldn't be set much lower than one, lest the df of alpha and beta be so low that extremely high prior precision is needed to restrict their prior confidence regions.
+#To move beyond conjugate priors, we'd have to enter the exciting world of Markov Chain Monte Carlo simulations. Which we don't have time for.
+
+#Informative prior on tau. Mean = a0/b0, Var = a0/(b0)^2.
+# Here we'll choose a pretty unrealistic prior which assumes that the error has very low variance/ high precision, so we can put a more informative prior on beta. 
+a0 <- 1 # Gamma "shape" parameter.
+b0 <- 0.01 # Gamma "rate" parameter.
+
+#Informative prior on alpha: broadly plausible range of lnwage at average education is -0.69 (~$0.50/hr) to 3.91 (~$50/hr). Can make this a 95% region.
+mu0[1] <- mean(c(-0.69, 3.91))
+Disp0[1,1] <- abs((mu0[1] - (-0.69))/qt(p = 0.025, df = 2*a0))
+Lam0 <- solve(a0/b0*Disp0)
+
+#Informative prior on beta: broadly plausible range of education effect is -0.1 (~10% decrease) to 0.7 (~100% increase). Can make this a 95% region.
+mu0[2] <- mean(c(-0.1, 0.7))
+Disp0[2,2] <- abs((mu0[2] - (-0.1))/qt(p = 0.025, df = 2*a0))
+Lam0 <- solve(a0/b0*Disp0)
+
+#Specify strong informative priors ####
+
+#Informative prior on tau. Mean = a0/b0, Var = a0/(b0)^2.
+# Here we'll choose a pretty unrealistic prior which assumes that the error has very low variance/ high precision, so we can put a more informative prior on beta. 
+a0 <- 1 # Gamma "shape" parameter.
+b0 <- 0.01 # Gamma "rate" parameter.
+
+#Informative prior on alpha: broadly plausible range of lnwage at average education is -0.69 (~$0.50/hr) to 3.91 (~$50/hr). Can make this a 95% region.
+mu0[1] <- mean(c(-0.69, 3.91))
+Disp0[1,1] <- abs((mu0[1] - (-0.69))/qt(p = 0.025, df = 2*a0))
+Lam0 <- solve(a0/b0*Disp0)
+
+#Informative prior on beta: plausible range of education effect is 0 to 0.2 (~100% increase). Can make this a 95% region.
+mu0[2] <- mean(c(0, 0.2))
+Disp0[2,2] <- 0.0001        #On the order of 100 datapoints
+Lam0 <- solve(a0/b0*Disp0)
+
+
+
+#------------------------------------------------------------#
+#------------------------------------------------------------#
+#------------------------------------------------------------#
+#Plot Priors ####
+#It's a very good idea to plot your priors to check if they're sensible.
+
+#Plot marginal prior on tau using ggplot2
+# Gamma(shape = a0, rate = b0)
+tau.marg.prior <-  function(x) {
+  dgamma(x = x, shape = a0, rate = b0)
+}
+x.vals <- seq(0,100, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = tau.marg.prior, FUN.VALUE = 1)
+tau.marg.prior.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + 
+  geom_line() + 
+  expand_limits(y=0, x=0) + theme_classic() +
+  ggtitle(paste0("Marginal prior of tau with ", "a0 = ", a0, ", b0 = ", b0)) + 
+  xlab("tau") + ylab("Density")
+tau.marg.prior.plot
+
+#Plot marginal prior on alpha using ggplot2
+#The marginal distribution of alpha is a t-distribution with location mu0[1], scale parameters (b0/a0)*Sig0[1,1], and 2*a0 degrees of freedom.
+alpha.marg.prior <-  function(x) {
+  dmvt(x = x, delta = mu0[1], sigma = diag(Disp0[1,1], nrow = 1), df = 2*a0, type = "shifted", log = FALSE)
+}
+x.vals <- seq(-10,10, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = alpha.marg.prior, FUN.VALUE = 1)
+alpha.marg.prior.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + 
+  geom_line() +  expand_limits(y=0) + theme_classic() + 
+  ggtitle(paste0("Marginal prior of alpha with mean = ", mu0[1], ", dispersion = ", Disp0[1,1])) + xlab("alpha") + ylab("Density")
+alpha.marg.prior.plot
+
+#Plot marginal prior on beta using ggplot2
+#The marginal distribution of beta is a t-distribution with location mu0[2], scale parameters (b0/a0)*Sig0[2,2], and 2*a0 degrees of freedom
+beta.marg.prior <-  function(x) {
+  dmvt(x = x, delta = mu0[2], sigma = diag(Disp0[2,2], nrow = 1), df = 2*a0, type = "shifted", log = FALSE)
+}
+x.vals <- seq(-10,10, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = beta.marg.prior, FUN.VALUE = 1)
+beta.marg.prior.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) +
+  geom_line() + 
+  expand_limits(y=0) + 
+  theme_classic() + 
+  ggtitle(paste0("Marginal prior of beta with mean = ", mu0[2], ", dispersion = ", Disp0[2,2])) + 
+  xlab("Beta") + ylab("Density")
+beta.marg.prior.plot
+
+#----------------------------------------------------------------#
+#Solve for posterior Parameters ####
+mu1 <- solve(t(X)%*%X + Lam0)%*%(t(X)%*%y + Lam0%*%mu0)
+Lam1 <- t(X)%*%X + Lam0
+a1 <- n/2 + a0
+b1 <- as.numeric(0.5*(2*b0 + t(y)%*%y + t(mu0)%*%Lam0%*%mu0 - t(mu1)%*%Lam1%*%mu1))
+Disp1 <- solve(a1/b1*Lam1)
+
+#----------------------------------------------------------------#
+#Plot posterior densities ####
+#Plot marginal posterior of tau using ggplot2
+tau.marg.post <-  function(x) {
+  dgamma(x = x, shape = a1, rate = b1)
+}
+x.vals <- seq(0,10, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = tau.marg.post, FUN.VALUE = 1)
+tau.marg.post.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + geom_line() + expand_limits(y=0, x=0) + theme_classic() + ggtitle("Marginal posterior of tau") + xlab("tau") + ylab("Density")
+tau.marg.post.plot
+
+#Plot alpha marginal posterior
+alpha.marg.post <-  function(x) {
+  dmvt(x = x, delta = mu1[1], sigma = diag(Disp1[1,1], nrow = 1), df = 2*a1, type = "shifted", log = FALSE)
+}
+x.vals <- seq(-10,10, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = alpha.marg.post, FUN.VALUE = 1)
+alpha.marg.post.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + geom_line() + expand_limits(y=0) + theme_classic() + ggtitle("Marginal posterior of alpha") + xlab("alpha") + ylab("Density")
+alpha.marg.post.plot
+
+#Plot beta marginal posterior
+beta.marg.post <-  function(x) {
+  dmvt(x = x, delta = mu1[2], sigma = diag(Disp1[2,2], nrow = 1), df = 2*a1, type = "shifted", log = FALSE)
+}
+x.vals <- seq(-0.1,0.15, length = 1000)
+y.vals <- vapply(X = x.vals, FUN = beta.marg.post, FUN.VALUE = 1)
+beta.marg.post.plot <- ggplot(data = data.frame(x.vals = x.vals, y.vals = y.vals), mapping = aes(x = x.vals, y = y.vals)) + geom_line() + expand_limits(y=0) + theme_classic() + ggtitle("Marginal posterior of beta") + xlab("beta") + ylab("Density")
+beta.marg.post.plot
+#--------------------------------------------------------#
+#Prior-Posterior Plots
+
+#beta
+my.xlim <- c(-0.5,0.5)
+grid.arrange(beta.marg.prior.plot + xlim(my.xlim),
+             beta.like.plot + xlim(my.xlim), 
+             beta.marg.post.plot + xlim(my.xlim),
+             nrow = 3)
+
+#alpha
+my.xlim <- c(-5,5)
+grid.arrange(alpha.marg.prior.plot + xlim(my.xlim),
+             alpha.marg.post.plot + xlim(my.xlim),
+             nrow = 2)
+
+#tau
+my.xlim <- c(0,10)
+grid.arrange(tau.marg.prior.plot + xlim(my.xlim),
+             tau.marg.post.plot + xlim(my.xlim),
+             nrow = 2)
+#--------------------------------------------------------#
+#Generate posterior simulations (useful for intervals) ####
+bayes.sim <- function(y, X, a0, b0, mu0, Lam0, n.sims){
+  
+  #Calculate posterior parameters
+  mu1 <- solve(t(X)%*%X + Lam0)%*%(t(X)%*%y + Lam0%*%mu0)
+  Lam1 <- t(X)%*%X + Lam0
+  Inv.Lam1 <- solve(Lam1)
+  a1 <- n/2 + a0
+  b1 <- as.numeric(0.5*(2*b0 + t(y)%*%y + t(mu0)%*%Lam0%*%mu0 - t(mu1)%*%Lam1%*%mu1))
+  Disp1 <- solve((a1/b1)*Lam1)
+  
+  #Draw tau from posterior distribution 
+  tau.sims <- rgamma(n = n.sims, shape = a1, rate = b1)
+  
+  #Draw alpha and beta given tau (conditional posterior)
+  alpha.beta.sims <- t(sapply(X = tau.sims, FUN = function(x){rmvnorm(n = 1, mean = mu1, sigma = Inv.Lam1/x)}))
+  
+  data.out <- as.data.frame(list(alpha = alpha.beta.sims[,1], beta = alpha.beta.sims[,2], tau = tau.sims, sigmasq = 1/tau.sims))
+  
+  return(data.out)
+}
+
+n.sims <- 200000 #Set number of samples. May take 30 sec for 100K.
+my.post.sims <- bayes.sim(y=y, X=X, a0=a0, b0=b0, mu0=mu0, Lam0=Lam0, n.sims=n.sims)
+
+head(my.post.sims)
+
+#--------------------------------------------------------#
+#Use posterior simulations ####
+
+#Calculate 95% posterior intervals
+my.mcmc <- as.mcmc(my.post.sims)
+HPDinterval(my.mcmc, prob = 0.95)
+
+#Plot heatmap of alpha, beta to visualize joint posterior
+ggplot(data = my.post.sims, aes(x = alpha, y = beta)) + geom_bin2d() + ggtitle("Joint Posterior Densities of alpha and beta")
+
+
+
+
