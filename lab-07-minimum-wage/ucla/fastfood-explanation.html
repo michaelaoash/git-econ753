@@ -1,0 +1,169 @@
+
+================================================
+KEYWORDS FOR DATASET: Minimum Wage, Unemployment
+================================================
+
+=======================================================
+ACCOMPANYING DATA PROVIDED BY: Guido Imbens
+			       UCLA, Dept. of Economics
+=======================================================
+
+================================
+GENERAL EXPLANATION OF THE STUDY
+================================
+
+The accompanying data were used to study the effects of an increase in the 
+minimum wage on unemployment. According to conventional economic theory, 
+perfectly competitive employers will always cut their work force in 
+response to any rise in the minimum wage. In practice, however, 
+employer reactions are not so clear-cut: While some studies in the 
+seventies confirmed the predictions of theory, earlier studies from the 
+sixties, as well as more recent studies conducted in the early nineties, 
+concluded that employment was unaffected by increases in the minimum wage.
+
+This study sought to clarify the issue. The New Jersey minimum wage 
+increase of April 1, 1992, which raised the minimum wage from $4.25 to 
+$5.05, provided a perfect opportunity. Because the fast-food industry 
+employs predominantly low-wage workers, because the absence of tips 
+simplifies the measurement of wages, and because fast-food restaurants are 
+relatively easy to sample, the study chose to assess the effects of the 
+minimum wage increase on a random sample of Burger King, Wendys, KFC, and 
+Roy Rogers restaurants in New Jersey and eastern Pennsylvania. The 
+restaurants were interviewed about one month before, and about eight 
+months after, the wage increase went into effect. Information was 
+collected at each restaurant about variables such as the number of 
+employees, various product prices, and store hours. This data provided 
+everything necessary to calculate the impact that the minimum wage 
+increase made not only on employment rates, but also on food prices, which
+can always be raised to compensate for higher wages. Finally, since 
+unemployment is affected by factors other than the minimum wage, the study 
+made careful use of controls. The data from the restaurants in Pennsylvania,
+as well as data on a number of restaurants in New Jersey that had been 
+using the new five dollar minimum wage as a base salary even before the 
+official increase went into effect, provided these naturally.
+
+More details from the study may be found in the original article, whose
+citation is below. This article is available on the web at JSTOR at 
+"www.jstor.org".   
+
+Card, David and Krueger, Alan. "Minimum Wages and Employment: A Case Study
+	of the Fast-Food Industry in New Jersey and Pennsylvania." The 
+	American Economic Review 84.4 (Sept. 1994) 772-793. 
+
+
+=============================
+BRIEF DESCRIPTION OF THE DATA          
+=============================
+
+The final data set contains information on 410 restaurants randomly chosen
+from phonebooks in New Jersey and eastern Pennsylvania. For each 
+restaurant information is provided on 46 variables; about half pertain 
+to the period before the minimum wage increase, and about half concern the
+period after.  
+
+After it was chosen from the phonebook, each restaurant was called for a 
+telephone survey. To elicit a response restaurants were called back as 
+many as nine times, and the researchers obtained 410 completed interviews--
+an 87 percent response rate.
+  
+========================
+HOW TO USE THE DATA FILE
+========================
+
+The data file is comma delimited text. The first row contains the list
+of variables and each remaining row contains the corresponding data for
+an individual restaurant. Missing data are indicated by a period. 
+Explanations for all variable abbreviations are given below. 
+
+==============================================================
+EXPLANATION OF DATA MEASUREMENT ABBREVIATIONS IN THE DATA FILE
+==============================================================
+
+SHEET           sheet number (unique store id)
+CHAIN           chain 1=Burger King; 2=KFC; 3=Roy Rogers; 4=Wendys
+CO_OWNED        1 if company owned
+STATE           1 if NJ; 0 if Pa                      
+
+Dummies for location:
+
+SOUTHJ         1 if in southern NJ
+CENTRALJ       1 if in central NJ
+NORTHJ         1 if in northern NJ
+PA1            1 if in PA, northeast suburbs of Phila
+PA2            1 if in PA, Easton etc
+SHORE          1 if on NJ shore
+
+First Interview:
+
+NCALLS         number of call-backs*
+EMPFT          # full-time employees
+EMPPT          # part-time employees
+NMGRS          # managers/ass't managers
+WAGE_ST        starting wage ($/hr)
+INCTIME        months to usual first raise
+FIRSTINC       usual amount of first raise ($/hr)
+BONUS          1 if cash bounty for new workers
+PCTAFF         % employees affected by new minimum
+MEALS          free/reduced price code (See below)
+OPEN           hour of opening
+HRSOPEN        number hrs open per day
+PSODA          price of medium soda, including tax
+PFRY           price of small fries, including tax
+PENTREE        price of entree, including tax
+NREGS          number of cash registers in store
+NREGS11        number of registers open at 11:00 am
+
+Second Interview:
+
+TYPE2         type 2nd interview 1=phone; 2=personal
+STATUS2       status of second interview: see below
+DATE2         date of second interview MMDDYY format
+NCALLS2       number of call-backs*
+EMPFT2        # full-time employees
+EMPPT2        # part-time employees
+NMGRS2        # managers/ass't managers
+WAGE_ST2      starting wage ($/hr)
+INCTIME2      months to usual first raise
+FIRSTIN2      usual amount of first raise ($/hr)
+SPECIAL2      1 if special program for new workers
+MEALS2        free/reduced price code (See below)
+OPEN2R        hour of opening
+HRSOPEN2      number hrs open per day
+PSODA2        price of medium soda, including tax
+PFRY2         price of small fries, including tax
+PENTREE2      price of entree, including tax
+NREGS2        number of cash registers in store
+NREGS112      number of registers open at 11:00 am
+
+Codes:
+
+Free/reduced Meal Variable:
+0 = none
+1 = free meals
+2 = reduced price meals
+3 = both free and reduced price meals
+
+
+Second Interview Status:
+
+0 = refused second interview (count = 1)
+1 = answered 2nd interview (count = 399)
+2 = closed for renovations (count = 2)
+3 = closed "permanently" (count = 6)
+4 = closed for highway construction (count = 1)
+5 = closed due to Mall fire (count = 1)
+
+
+*Note: number of call-backs = 0 if contacted on first call
+
+================================================
+STATISTICAL TESTS AND ANALYSES USED IN THE STUDY
+================================================
+1) t-test for difference of means
+2) Basic Linear Regression
+
+
+    * Go To Raw Data <fastfood.dat>
+    * Download Stata File <fastfood.dta>
+    * Return to Previous Page <econ-data.html> 
+
