@@ -25,6 +25,7 @@ with(kiefer, log(mean(strike)))
 with(kiefer, var(strike))
 
 summary(constant.glm <- glm(strike ~ 1  , data=kiefer, family=poisson))
+logLik(constant.glm)
 predict(constant.glm,type="response")
 
 
@@ -34,10 +35,44 @@ poissonll <- function(beta) {
     cons <- rep(1, length(kiefer$strike))
     -sum( -exp(beta*cons) + y * beta * cons ) }
 
-
+## Find log lambda that minimizes negative log likelihood
 (poissonll.opt  <- optimize( poissonll, interval=c(0,5)  ))
 (poissonll.opt  <- optim( 1,  poissonll ))
+## Lambda
 exp(poissonll.opt$par)
+
+
+
+## Computes ln(Y!) which is a formal piece of the ln L function (that does not depend on parameters)
+lnfac  <- function(yi) {
+    sum = 0 
+    for (j in 1:yi) {
+        sum = sum + log(j) }
+    sum
+    }
+
+## Log likelihood function including the formal ln(Y!)
+poissonll <- function(beta) {
+    y <- kiefer$strike
+    cons <- rep(1, length(kiefer$strike))
+    -sum( -exp(beta*cons) + y * beta * cons - sapply(y, lnfac)) }
+
+## Find log lambda that minimizes negative log likelihood
+(poissonll.opt  <- optimize( poissonll, interval=c(0,5)  ))
+(poissonll.opt  <- optim( 1,  poissonll ))
+## Lambda
+exp(poissonll.opt$par)
+
+## Log likelihood
+-poissonll.opt$value
+## Max outperforms alternatives
+-poissonll(log(40))
+-poissonll(poissonll.opt$par)
+-poissonll(log(49))
+
+## Likelihood
+exp(-poissonll.opt$value)
+
 
 
 ## Two parameter Poisson (constant and one covariate)
