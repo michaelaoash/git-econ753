@@ -62,7 +62,7 @@ cps <- mutate(cps,
 
 
 ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun.y="mean")
-ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun.y="mean")
+ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun.y="median")
 
 ggplot(cps, aes(x=ed, y=exp(lnwage))) + geom_point(aes(color=factor(fe))) + geom_smooth(method="lm")
 
