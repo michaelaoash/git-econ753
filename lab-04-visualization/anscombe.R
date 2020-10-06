@@ -17,8 +17,22 @@ summarize(group_by(anscombe_tidy,set),
           mean(x), sd(x), mean(y), sd(y), cor(x,y), alpha=coef(lm(y ~ x))[1], beta=coef(lm(y ~ x))[2], R2=summary(lm(y ~ x))$r.squared 
           )
 
-ggplot(anscombe_tidy, aes(x=x, y=y, color=set)) +
+ggplot(data=anscombe_tidy, aes(x=x, y=y, color=set)) +
     geom_point() +
     facet_wrap(~ set) +
-    geom_smooth(method = "lm", se = FALSE)
+    geom_smooth(method = "lm", se = TRUE)
 
+
+ggplot(anscombe_tidy, aes(x=x, y=y, color=observation, size=set)) +
+    geom_point() +
+    facet_wrap (~ set)
+
+
+ggplot(anscombe, aes(x=x1, y=y1)) + geom_point(color="blue") +
+    geom_point(aes(x=x2,y=y2), color="red") +
+    geom_point(aes(x=x3,y=y3), color="green") 
+
+anscombe_tidy %>% ggplot(aes(x=x,y=y,color=set)) + geom_point()
+
+
+plot(anscombe$x1, anscombe$y1)

@@ -39,7 +39,8 @@ morg  <- mutate(morg,
 df79  <- data.frame(x1=mw79, x2=mw79, y1=0.01, y2=2.7, Year=factor(1979))
 df88  <- data.frame(x1=mw88, x2=mw88, y1=0.01, y2=2.7, Year=factor(1988))
 
-ggplot(morg) + geom_density(aes(x=rearnhre, group=Year, linetype=Year),trim=TRUE) + scale_x_continuous(trans="log",breaks=c(2,5,10,25)) + theme(legend.position = "none") +
+ggplot(morg) + geom_density(aes(x=rearnhre, group=Year, linetype=Year),trim=TRUE, bw=0.05) +
+    scale_x_continuous(trans="log",breaks=c(2,5,10,25)) + theme(legend.position = "none") +
     coord_cartesian(xlim=c(1,30)) +
     geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), data = df79, alpha=0.5) +
     geom_segment(aes(x = x1, y = y1, xend = x2, yend = y2), data = df88, alpha=0.5) +
