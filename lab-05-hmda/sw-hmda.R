@@ -1,4 +1,8 @@
 ## Some work with the Home Mortgage Disclosure Act Data (Stock and Watson, Chapter 11)
+library(tidyverse)
+library(haven)
+library(lmtest)
+library(party)
 
 ## Read HMDA data from Stata file.
 hmda <- read_dta("hmda_sw.dta")
@@ -141,3 +145,12 @@ attr.b %*% coef.b - attr.w %*% coef.w
 ## As shares of total
 (attr.b - attr.w) %*% coef.b / (attr.b %*% coef.b - attr.w %*% coef.w)
 (coef.b - coef.w) %*% attr.w / (attr.b %*% coef.b - attr.w %*% coef.w)
+
+
+
+## Some work with classification trees
+## This matches the Varian tree
+Hmda  <- hmda %>% select(deny,black, pi_rat,hse_inc,loan_val,ccred,mcred,pubrec,denpmi)
+
+plot(ctree(deny ~ ., data=Hmda[complete.cases(Hmda),]), type="simple")
+
