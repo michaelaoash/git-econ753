@@ -21,7 +21,6 @@ names(cps)
 
 ## Basic summary statistics
 summary(cps)
-describe(cps)
 
 cps$ed
 mean(cps$ed)
@@ -30,12 +29,17 @@ sd(cps$ed)
 table(cps$ed)
 stem(cps$ed)
 
+stem(cps$lnwage)
+
 ## Tukey stem-and-leaf plot
 stem(cps$lnwage, scale=2, width=125)
 
 stem(exp(cps$lnwage), scale=2, width=125)
 mean(exp(cps$lnwage))
 sd(exp(cps$lnwage))
+
+dplyr::summarize(group_by(cps,year), mean(lnwage), sd(lnwage))
+
 
 ## Some tabulation commands
 ## and "with" and data= to specify the dataset
@@ -89,6 +93,8 @@ summary(cps.pooled.lm)
 cps.separated.lm <- lm(lnwage ~ fe*( marr + nonwh + ed + ex + exsq ), data=cps85)
 summary(cps.separated.lm)
 
+cps.fem.lm <- lm(lnwage ~ marr + nonwh + ed + ex + exsq, data=filter(cps85,fe==1))
+
 
 ## Oaxaca-Blinder decomposition
 ## Run the regression separately by race
@@ -110,8 +116,8 @@ cps.mean.race <- select(cps.mean.race,lnwage,one,fe,marr,ed,ex,exsq)
 (attr.b <- as.matrix(cps.mean.race)[2,2:7])
 
 ## Extract coefficients by race
-(coef.w <- as.matrix(sapply(cps.lm.race$cps.lm,coef))[1:6,1])
-(coef.b <- as.matrix(sapply(cps.lm.race$cps.lm,coef))[1:6,2])
+(coef.w <- as.matrix(sapply(cps.lm.race,coef))[1:6,1])
+(coef.b <- as.matrix(sapply(cps.lm.race,coef))[1:6,2])
 
 ## Difference in mean outcome
 as.matrix(cps.mean.race[2,1]) - as.matrix(cps.mean.race[1,1])
@@ -125,4 +131,8 @@ attr.b %*% coef.b - attr.w %*% coef.w
 ## As shares of total
 (attr.b - attr.w) %*% coef.b / (attr.b %*% coef.b - attr.w %*% coef.w)
 (coef.b - coef.w) %*% attr.w / (attr.b %*% coef.b - attr.w %*% coef.w)
+
+
+(attr.b - attr.w) %*% coef.w / (attr.b %*% coef.b - attr.w %*% coef.w)
+(coef.b - coef.w) %*% attr.b / (attr.b %*% coef.b - attr.w %*% coef.w)
 

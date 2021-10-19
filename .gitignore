@@ -5,6 +5,12 @@ lab-04-visualization/morg88.dta
 # Emacs backup files
 *~
 
+# Old versions
+old/
+lab-02-io-tables/old/
+old/*
+lab-02-io-tables/old/*
+
 # Batch output files
 *.Rout
 
