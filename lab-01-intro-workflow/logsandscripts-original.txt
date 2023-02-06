@@ -1,0 +1,234 @@
+Logs and Scripts
+
+What is a log?
+
+Log files keep track of everything that happens in a Stata session:
+what you type, what Stata calculates and prints, and what goes wrong.
+
+Why log?
+
+You will refer to the log when you prepare your write-up of a
+quantitative analysis. If you do enough anlysis, you will need log
+files to remember what procedures you used and what the results were.
+
+For example, when you recoded the 10-point scale of worker
+satisfaction, did you code responses of ``4 and below'' as dissatified
+or did you code ``below 4'' as dissatisfied--or maybe it was ``below
+3''?  Without a record of what you did, you may find it very hard to
+interpret and report your results.
+
+You will refer to the log when you pick up a project from someone
+else.  Let's hope that your predecessor used good logging practice.
+
+Others can help you solve problems and interpret results.  ``Something
+went wrong when I was analyzing the survey'' will elicit much less
+assistance from teachers or tech support than will ``The response to
+the self-reported health question, variable HEA, is missing for all
+respondents over age 65.''
+
+Others can check, replicate, and extend your work.  Your logs will
+help people working on the same project perform analyses that build on
+your work.
+
+
+How to log
+
+1. The command ``capture log close'' will close a log if any is open
+   and do nothing if no log is open. (The word capture means that
+   Stata should not complain if there is no log open to close.)
+
+
+2. Choose a name and location for your log and open the log.  The name
+   should help you remember what is in the log file. For example, if
+   you are working on problem set 3, question 4, part a, you might
+   want to call the log file ps3_4_a.  Location matters, too: organize
+   your projects thematically in a directory structure.  This
+   organization is especially important if you are sharing the
+   computer with other users or are working on many projects at once.
+   Pay attention where you put your files; it can be very frustrating
+   finding them later.
+
+   To open the log file "ps3_4_a" in the directory
+   c:\users\ash\courses\stat_course\ps3, use the command:
+
+   log using "c:\users\ash\courses\stat_course\ps3\ps3_4_a"
+
+   Some extra options:
+
+   If this log already exists, you may want to add more work to the
+   existing log file.  In that case, use
+
+   log using "c:\users\ash\courses\stat_course\ps3\ps3_4_a", append
+
+   If this log already exists, you may want to replace it because you
+   have improved your approach. (Be sure that you don't mind losing
+   the existing log because it will be gone forever.) To replace an
+   existing log with a new log, use
+
+   log using "c:\users\ash\courses\stat_course\ps3\ps3_4_a", replace
+
+
+3. You may want to write notes to yourself in the log file.  These are
+   called comments and you tell Stata to record the comment but not to
+   take any other action by preceding the comment with a *, for
+   example,
+   
+   * In this section, I will work on part (iii) of ps3_4_a
+
+4. You can view any log, either the one in progress or another log by
+   starting the viewer with Window -> Viewer, choosing ``view your
+   logs or any file,'' browsing your files, and selecting the log you
+   want view.
+
+
+5.  Stata's default behavior is to make the log file record all of the
+    screen colors, boldface, etc., that appear in the results window.
+    If you have a color printer, you can print the log files in
+    glorious technicolor.  If you want to edit your logs in a
+    word-processor, then you may want to save them in "text" format.
+    (This is what I usually do.)
+
+    log using "c:\users\ash\courses\stat_course\ps3\ps3_4_a", text
+
+    If the log is called ps3_4_a.smcl then it has the color formatting
+    and must be viewed in Stata.  If the log is called ps3_4_a.log,
+    then it can be viewed in Stata or edited in a word-processing
+    program.
+
+
+6.  You can close the log with the following command (note that you do
+    not have to specify the log name.)
+
+    log close
+
+
+
+What is a script?
+
+A script, also called a ``batch file,'' a ``batch job,'' or (in the
+terminology of Stata) a ``do-file,'' is a file containing a set of
+Stata commands that Stata will process in sequence.
+
+Why script and when?
+
+Although Stata is a ``conversational'' application (which means that
+you can give a command from the keyboard, Stata shows you the result
+and then awaits your next command), I strongly recommend scripting a
+lot of your work.  The ``conversational'' approach is ok if you are
+just beginning to explore your data or if you are trying to figure out
+why a procedure went wrong, but all serious data-inputting,
+data-cleaning, recoding, subsetting, and statistical procedures should
+be scripted.
+
+As with logging, scripts keep track of what you have done and make it
+possible to replicate your work quickly and accurately.  If you script
+most of your work, you can make changes at an early point in an
+analysis and modify all subsequent procedures without much difficulty.
+
+For example, suppose that you are conducting an analysis of eldercare
+in the Hill Towns: initially you decided to focus on people age 70 and
+up, and so you dropped from the original dataset all people under age
+70.  Two months into the analysis, you decide that you should include
+people age 65 and up.  If you have scripted all of your work along the
+way, the modification involves several keystrokes and letting each
+script run in sequence.  If you were not scripting, you will need to
+start from scratch, review the logs (you were logging, right?), and
+key in every coding command that you have given over the past two
+months.
+
+Furthermore, scripts become part of an archive for you to accumulate,
+use, and share as you conduct quantitative analysis.  You will frequently
+perform similar procedures on different datasets, e.g., make categorical 
+variables from continuous variables, and if you can refer to your earlier
+work you will save lots of time.
+
+How to script
+
+1. As with logs, you should choose sensible names and locations for
+   your scripts.  You will frequently use scripts in sequence; so it
+   may make sense to number the scripts sequentially.
+
+2. Stata has a built-in editor for writing scripts. You can start the
+   editor from Window -> Do-File Editor or by clicking the
+   pencil-on-envelope icon.  I don't think that the built-in editor is
+   very good; you can use other editors, including Notepad, emacs (ask
+   me), or even word processors.  (If you use a word-processor, save
+   as txt, not as doc.) Also see http://repec.org/docs/textEditors.html
+
+3. Always start the script with the command to log the Stata activity.
+   Then insert comments about who wrote the program, when, for what
+   purpose, and how to contact the author.  (Put the comments after
+   the logging command so that the comments are included in the log.)
+   After the log command and the comments, you can give Stata commands
+   to input, use, and process data.  For example:
+
+
+capture log close
+log using "c:\users\ash\courses\stat_course\ps3\ps3_4_a", text replace
+
+*************************************
+* ps3_4_a.do         
+* Michael Ash
+* mash@pubpol.umass.edu
+* PubPA 608
+* 1 January 2003  
+*************************************
+
+* ps3_4_a.do computes the answer to 
+* Problem Set 3, Question 4, Part a
+* Recall that lines starting with * are comments
+* Use lots of comments to make your programs readable
+
+* This command clears out all data in memory
+capture drop _all
+
+* This command uses the Problem Set 3 dataset
+use "c:\users\ash\courses\stat_course\ps3\ps3.dta"
+
+* Table of health status of people over age 65
+tabulate health if age>65
+
+* Average income of people in excellent or very good health 
+summarize income if health<=2 
+
+log close
+*************************************
+
+
+4. Save the script with ".do" extension, for example, ps3_4_a.do
+
+5. You can run the script 
+   (a) by starting Stata and typing giving a do command at the prompt, e.g.,
+      . do c:\users\ash\courses\stat_course\ps3\ps3_4_a.do
+   (b) by starting Stata, choosing File->Do..., and selecting the do-file
+   (c) by double-clicking the do-file in Windows Explorer; or
+   (d) (if you use the built-in Stata editor) by clicking the do button on the toolbar
+
+
+Conclusion
+
+Logging and scripting are part of responsible record-keeping and good
+policy analysis.  The small additional effort, of writing and commenting
+scripts and using the logging commands, pays for itself quickly.
+
+
+Additional notes
+
+1. If you want to avoid typing long pathnames such as 
+. do "c:\users\ash\courses\stat_course\ps3\ps3.do" 
+you can change directory in Stata to the directory where you keep all
+of the files (data files, do-files, and logs) for a project
+. cd "c:\users\ash\courses\stat_course\ps3\"
+Then you can issue shorter commands without the full path, e.g.,
+. log using "ps3_4_a", text replace
+. do "ps3_4_a.do"
+
+2. Pathnames and filenames need be in quotes only if they contain spaces:
+. do "c:\users\brousseau\capstone project\program one.do"
+but
+. do c:\users\brousseau\capstone\cp1.do
+
+3. An easy way to begin a script is to log a conversational session,
+   use Windows Explorer to copy the log file to a do file, and then
+   edit the do-file, taking out all of the results, etc.
+
