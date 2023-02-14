@@ -3,6 +3,7 @@
 library(tidyverse) ## Includes advanced data management and graphics
 library(haven) ## to read Stata and other data formats
 library(broom) ## Processing output
+library(tabyl) ## Advanced tabling commands
 library(lmtest) ## For robust standard errors
 library(sandwich) ## For robust standard errors
 library(Hmisc) ## For some nicely formatted summary stats
@@ -12,7 +13,7 @@ library(Hmisc) ## For some nicely formatted summary stats
 ## width controls the column width of output
 options(scipen=1000,width=200)
 
-## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
+o## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
 cps <- read_dta("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
 
 ## list variables
@@ -42,8 +43,10 @@ dplyr::summarize(group_by(cps,year), mean(lnwage), sd(lnwage))
 
 
 ## Some tabulation commands
-## and "with" and data= to specify the dataset
+## table uses "with" to specify the dataset and xtab uses use data= to specify the dataset
 with(cps, table(as_factor(occupation),fe))
+
+xtabs(~ occupation + fe, data=cps)
 xtabs(~ as_factor(occupation) + fe, data=cps)
 summary(xtabs(~ as_factor(occupation) + fe, data=cps))
 
@@ -58,21 +61,39 @@ with(cps,tapply(lnwage,list(year,as_factor(ethnic)),mean))
 with(cps,tapply(exp(lnwage),list(year,as_factor(ethnic)),mean))
 
 
-
+## The "mutate" function (in the tidyverse package) takes a dataset,
+## adds new variables, in this case "wage" and "college", and returns
+## a new dataset, in this case written on top of the existing dataset
+## with "->"
 cps <- mutate(cps,
               wage = exp(lnwage),
               college = (ed >= 16)
               )
 
 
-ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun.y="mean")
-ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun.y="mean")
+## Introducing ggplot(), a sophisticated graphics library included in tidyverse
+ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun="mean")
 
-ggplot(cps, aes(x=ed, y=exp(lnwage))) + geom_point(aes(color=factor(fe))) + geom_smooth(method="lm")
+ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun="mean")
 
 
 
-## Create datasets limited to 1985 and 1978
+## Note that %>% is the "pipe" symbol in tidyverse.  It feeds the
+## dataset (on the left) into the next function on the right Many but
+## not all functions are equipped to receive "piped" dataset
+
+cps %>% ggplot(aes(x=ed, y=exp(lnwage))) + geom_point()
+
+cps %>% ggplot(aes(x=ed, y=exp(lnwage), color=factor(fe))) + geom_point()
+
+cps %>% ggplot(aes(x=ed, y=exp(lnwage), color=factor(fe))) + geom_point() + geom_smooth(method="lm")
+
+cps %>% ggplot(aes(x=ed, y=exp(lnwage), color=factor(fe), size=ex)) + geom_point()
+
+
+## Create datasets limited to 1985 and 1978 Note that this uses the
+## filter function in the tidyverse package.  This will NOT work if
+## you have not loaded tidyverse.
 cps85 <- filter(cps,year==1985)
 cps78 <- filter(cps,year==1978)
 
@@ -80,11 +101,19 @@ cps78 <- filter(cps,year==1978)
 ls()
 
 
+## Basic OLS regrssion with the lm() (linear model) function
+help.search("regression")
+help.search("regression", package="stats")
+help.search("regression", package=c("stats","lmtest"))
+help(lm)
+
+
 cps85.lm <- lm(lnwage ~ fe + marr + nonwh + ed + ex + exsq, data=cps85)
 ## Basic regression results
 summary(cps85.lm)
-## Heteroskedasticity-consistent (robust) standard errors (equivalent to ", robust" in Stata)
-coeftest(cps85.lm,vcov=vcovHC(cps85.lm,type="HC1"))
+coeftest(cps85.lm)
+## Heteroskedasticity-consistent (robust) standard errors (identical to ", robust" in Stata)
+coeftest(cps85.lm, vcov=vcovHC(cps85.lm,type="HC1"))
 
 
 ## Pooled and unpooled regressions (with interaction terms)
