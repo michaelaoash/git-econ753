@@ -3,65 +3,81 @@
 ## Frisch Waugh Lovell partitioned regression model
 library(tidyverse)
 library(haven)
+library(lmtest)
+options(scipen=1000)
+
 andong <- read_dta("sbegnew.dta")
 
-## Clean by deleting observations with any missing data
-andong <-subset(andong, !is.na(gyp) & !is.na(tori))
-
-## attach() is bad form but makes it easier to access variables.
-## Challenge: rewrite with good tidyverse syntax
-attach(andong)
-
-frisch_waugh_lovell <- function(df, y, x, control) {
+frisch_waugh_lovell <- function(df, y, x, label, control) {
     ## Frisch Waugh Lovell Partitioned Regression
     ## Shih-Yen Pan & Michael Ash (2021)
     ## df is the dataframe, y is the dependent variable, x is the key independent variable
     ## control is a list of control variables
+    df  <- drop_na(df, any_of(c(y,x,control)))
+    df  <- select(df,c(label,y,x,control))
+    print(df)
     control <- (paste(control, collapse = " + ") )
-
+    
     ## Bivariate regression for comparison
     reg_bi <- as.formula(paste(y, " ~ ", x))
     print("Bivariate Regression")
-    print(summary(lm_bi <- lm(reg_bi, df)))
+    print(coeftest(lm_bi <- lm(reg_bi, df)))
+
+    df  <- mutate(df,
+                  y_bi = predict(lm_bi)
+                  )
 
     ## Multivariate regression for comparison
     reg_mvr <- as.formula(paste(y, " ~ ", x, " + ", control))
     print("Multivariate Regression")
-    print(summary(lm_mvr <- lm(reg_mvr, df)))
+    print(coeftest(lm_mvr <- lm(reg_mvr, df)))
 
     ## residualize y on the control variables
     reg_ycontrol <- as.formula(paste(y, " ~ ", control))
-    u_y <- resid(lm(reg_ycontrol, df))
+    uy.lm  <- lm(reg_ycontrol, df)
 
     ## residualize x on the control variables
     reg_xcontrol <- as.formula(paste(x, " ~ ", control))
-    u_x <- resid(lm(reg_xcontrol, df))
+    ux.lm <- lm(reg_xcontrol, df)
+
+    df  <- mutate(df,
+                  u_y = resid(uy.lm),
+                  u_x = resid(ux.lm)
+                  )
 
     ## Frisch-Waugh-Lovell regression
-    lm_u <- lm(u_y ~ 0 + u_x)
+    fwl.lm <- lm(u_y ~ 0 + u_x, data=df)
     print("Partitioned Regression")
-    print(summary(lm_u))
-    
-    plot(df[[x]],df[[y]], main="Scatterplot and bivariate regression", xlab=x, ylab=y)
-    abline(lm_bi)
+    print(coeftest(fwl.lm))
+    print(df)
+
     dev.new()
-    plot(u_x,u_y, main="Residualized scatterplot and partitioned regression", xlab=paste("residualized", x ), ylab= paste("residualized", y))
-    abline(lm_u)
+
+    print(ggplot(data=df, aes_string(x=x, y=y) ) +
+          geom_point() +
+          geom_text(aes_string(label=label),hjust=0) +
+          geom_smooth(method="lm") +
+          labs(title="Bivariate regression"))
+
+    dev.new()
+
+    print(ggplot(data=df, aes(x=u_x, y=u_y) ) +
+          geom_point() +
+          geom_text(aes_string(label=label),hjust=0) +
+          geom_smooth(method="lm") +
+          labs(title="Partitioned Regression"))
 }
+
+
 
 ## list of control variables
 mycontrols <- c("lrgdp", "lsec", "revcoup", "govi", "pii", "bmpi", "bpyi")
 
-frisch_waugh_lovell(andong, "gyp", "tori", mycontrols)
+frisch_waugh_lovell(andong, "gyp", "tori", "country", mycontrols)
+
+frisch_waugh_lovell(filter(andong, !(country %in% c("TWN","KOR")  )  )  , "gyp", "tori", "country", mycontrols)
 
 
-
-
-
-
-
-## ggplot(andong, aes(y=gyp, x=tori)) + geom_point() + geom_text(label=name) + geom_smooth(method="lm")
-## ggplot(data.frame(toriu,gypu,name), aes(x=toriu, y=gypu) ) + geom_point() + geom_text(label=name) + geom_smooth(method="lm")
 
 ## Not implemented: test omitting outliers
 ## plot(toriu,gypu)
