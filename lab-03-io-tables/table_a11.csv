@@ -1,0 +1,119 @@
+Sector|Industry|Weights
+Weatherization|Repairs of buildings|100%
+Industrial energy efficiency|Electric wires and cables|10%
+Industrial energy efficiency|General-purpose machinery parts|20%
+Industrial energy efficiency|Other general-purpose machinery and equipment|10%
+Industrial energy efficiency|Other special-purpose machinery and equipment|10%
+Industrial energy efficiency|Constructions of industrial plants and facilities for manufacturing|20%
+Industrial energy efficiency|Research and development services|30%
+Smart grids|Semiconductors and related devices|5.0%
+Smart grids|Electronic signal equipment|7.5%
+Smart grids|Other electronic components|12.5%
+Smart grids|Other electrical equipment|12.5%
+Smart grids|Electric wires and cables|12.5%
+Smart grids|General-purpose machinery parts|12.5%
+Smart grids|Other general-purpose machinery and equipment|12.5%
+Smart grids|Constructions of general facilities|25.0%
+Public transport|Constructions of facilities for traffic|25.0%
+Public transport|Railway transport services|20.0%
+Public transport|Road transport services|30.0%
+Public transport|Water transport services|5.0%
+Public transport|Air transport services|5.0%
+Public transport|Supporting services for transportation|10.0%
+Public transport|Other services incidental to transportation|5.0%
+Electric vehicles|Batteries|25.0%
+Electric vehicles|Semiconductor and display board manufacturing machinery|5.0%
+Electric vehicles|Motor vehicles|50.0%
+Electric vehicles|Motor vehicle engine and parts|10%
+Electric vehicles|Research and development services|5.0%
+Electric vehicles|Other scientific, technical, and professional services|5.0%
+Bioenergy|Grains and other edible crops|12.5%
+Bioenergy|Other crops|12.5%
+Bioenergy|Forest goods|17.5%
+Bioenergy|Agriculture, forestry and fishing related services|12.5%
+Bioenergy|Crude petroleum and natural gas|12.5%
+Bioenergy|Constructions of industrial plants and facilities for manufacturing|20.0%
+Bioenergy|Research and development services|12.5%
+Solar: onshore community, commercial and residential|Glass products|2.5%
+Solar: onshore community, commercial and residential|Non-ferrous metal ingots|2.5%
+Solar: onshore community, commercial and residential|Other fabricated metal products|5.0%
+Solar: onshore community, commercial and residential|Semiconductors and related devices|10.0%
+Solar: onshore community, commercial and residential|Electronic signal equipment|5.0%
+Solar: onshore community, commercial and residential|Other electronic components|5.0%
+Solar: onshore community, commercial and residential|Capacitors, rectifiers, and electric transmission and distribution equipment|15.0%
+Solar: onshore community, commercial and residential|Batteries|15.0%
+Solar: onshore community, commercial and residential|Electric wires and cables|10.0%
+Solar: onshore community, commercial and residential|Electricity supply|5.0%
+Solar: onshore community, commercial and residential|Other constructions|20.0%
+Solar: onshore community, commercial and residential|Research and development services|2.5%
+Solar: onshore community, commercial and residential|Other scientific, technical, and professional services|2.5%
+Solar: onshore utility-scale|Glass products|2.5%
+Solar: onshore utility-scale|Non-ferrous metal ingots|2.5%
+Solar: onshore utility-scale|Other fabricated metal products|5.0%
+Solar: onshore utility-scale|Semiconductors and related devices|12.0%
+Solar: onshore utility-scale|Electronic signal equipment|5.0%
+Solar: onshore utility-scale|Other electronic components|5.0%
+Solar: onshore utility-scale|Capacitors, rectifiers, and electric transmission and distribution equipment|10.0%
+Solar: onshore utility-scale|Batteries|15.0%
+Solar: onshore utility-scale|Electric wires and cables|8.0%
+Solar: onshore utility-scale|Electricity supply|10.0%
+Solar: onshore utility-scale|Other constructions|20.0%
+Solar: onshore utility-scale|Research and development services|2.5%
+Solar: onshore utility-scale|Other scientific, technical, and professional services|2.5%
+Solar: offshore utility-scale|Glass products|2.5%
+Solar: offshore utility-scale|Other plastic products|3.0%
+Solar: offshore utility-scale|Non-ferrous metal ingots|2.5%
+Solar: offshore utility-scale|Other fabricated metal products|5.0%
+Solar: offshore utility-scale|Semiconductors and related devices|12.0%
+Solar: offshore utility-scale|Electronic signal equipment|5.0%
+Solar: offshore utility-scale|Other electronic components|5.0%
+Solar: offshore utility-scale|Capacitors, rectifiers, and electric transmission and distribution equipment|10.0%
+Solar: offshore utility-scale|Batteries|15.0%
+Solar: offshore utility-scale|Electric wires and cables|5.0%
+Solar: offshore utility-scale|Electricity supply|10.0%
+Solar: offshore utility-scale|Other constructions|5.0%
+Solar: offshore utility-scale|Water transport services|10.0%
+Solar: offshore utility-scale|Research and development services|5.0%
+Solar: offshore utility-scale|Other scientific, technical, and professional services|5.0%
+Tidal power|Other plastic products|5.0%
+Tidal power|Metal foundries|5.0%
+Tidal power|Structural metal products and metal tanks|10.0%
+Tidal power|Treatment and coating of metals|2.5%
+Tidal power|Other fabricated metal products|2.5%
+Tidal power|Batteries|5.0%
+Tidal power|Electric wires and cables|5.0%
+Tidal power|Engines and turbines|15.0%
+Tidal power|Electricity supply|10.0%
+Tidal power|Water supply|5.0%
+Tidal power|Other constructions|15.0%
+Tidal power|Water transport services|10.0%
+Tidal power|Research and development services|5.0%
+Tidal power|Other scientific, technical, and professional services|5.0%
+Sustainable agriculture|Grains and other edible crops|10.0%
+Sustainable agriculture|Vegetables and fruits|15.0%
+Sustainable agriculture|Other crops|5.0%
+Sustainable agriculture|Cattle|10.0%
+Sustainable agriculture|Other animals|15.0%
+Sustainable agriculture|Fishery goods|10.0%
+Sustainable agriculture|Agriculture, forestry and fishing related services|10.0%
+Sustainable agriculture|Fertilizer and pesticides|5.0%
+Sustainable agriculture|Agricultural machinery and machinery for construction|10.0%
+Sustainable agriculture|Other constructions|5.0%
+Sustainable agriculture|Research and development services|2.5%
+Sustainable agriculture|Other scientific, technical, and professional services|2.5%
+Afforestation|Forest goods|25.0%
+Afforestation|Agriculture, forestry and fishing related services|25.0%
+Afforestation|Agricultural machinery and machinery for construction|20.0%
+Afforestation|Other constructions|20.0%
+Afforestation|Research and development services|2.5%
+Afforestation|Other scientific, technical, and professional services|7.5%
+Rooftop solar PV|Glass products|5.0%
+Rooftop solar PV|Non-ferrous metal ingots|5.0%
+Rooftop solar PV|Other fabricated metal products|8.0%
+Rooftop solar PV|Semiconductors and related devices|24%
+Rooftop solar PV|Electronic signal equipment|10%
+Rooftop solar PV|Other electronic components|10%
+Rooftop solar PV|Electric wire and cables|7%
+Rooftop solar PV|Other constructions|16%
+Rooftop solar PV|Research and development services|15%
+
