@@ -112,7 +112,7 @@ SK_eere_plan["R: Tidal Power",]                                  =  0.8
 for( eere_sector in colnames(M) ) {
     y_eere[,]  <- 0
     y_eere[eere_sector,]  <- SK_eere_plan[eere_sector,] * 1000000
-    print(paste0(eere_sector, " Employment from spending ", y_eere[eere_sector,], "million KRW"))
+    print(paste0("Employment from spending ", y_eere[eere_sector,], " million KRW on ", eere_sector))
     employment_estimate()
     }
 
