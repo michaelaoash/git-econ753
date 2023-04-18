@@ -1,12 +1,12 @@
-library(foreign)
-library(dplyr)
+library(tidyverse)
+library(haven)
 library(reshape2)
 library(plm)
 library(lmtest)
 
-## Warning: sheet 407 is used twice (once in NJ, once in PA)
+## Warning: sheet 407 is used twice (once in NJ (1), once in PA (0) )
 
-fastfood.df  <- read.dta("ucla/fastfood.dta")
+fastfood.df  <- read_dta("ucla/fastfood.dta")
 ## fastfood.df  <- subset(fastfood.df, status2 == 1 | status2==3)
 fastfood.df  <- mutate(fastfood.df,
                        sheet = ifelse(sheet==407 & state==1,408,sheet)  )
@@ -22,9 +22,22 @@ fastfood2.df  <- mutate(fastfood1.df,
 with(fastfood1.df, tapply(fte, state, mean, na.rm=TRUE))
 with(fastfood1.df, tapply(fte, state, sd, na.rm=TRUE)) / sqrt(with(fastfood1.df, tapply(!is.na(fte), state, sum, na.rm=TRUE)))
 
+fastfood1.df %>% group_by(state) %>%
+    summarize(mean(fte, na.rm=TRUE),
+              sd(fte, na.rm=TRUE) / sqrt(sum(!is.na(fte), na.rm=TRUE ))
+              )
+
+
 ## 2. FTE employment after, all available observation
 with(fastfood1.df, tapply(fte2, state, mean, na.rm=TRUE))
 with(fastfood1.df, tapply(fte2, state, sd, na.rm=TRUE)) / sqrt(with(fastfood1.df, tapply(!is.na(fte2), state, sum, na.rm=TRUE)))
+
+
+fastfood1.df %>% group_by(state) %>%
+    summarize(mean(fte2, na.rm=TRUE),
+              sd(fte2, na.rm=TRUE) / sqrt(sum(!is.na(fte2), na.rm=TRUE ))
+              )
+
 
 
 ## 3. Change in mean FTE employment
@@ -37,6 +50,9 @@ sqrt( (with(fastfood1.df, tapply(fte2, state, sd, na.rm=TRUE)) /
          sqrt(with(fastfood1.df, tapply(!is.na(fte2) , state, sum) )))^2 +
       (with(fastfood1.df, tapply(fte, state, sd, na.rm=TRUE)) /
          sqrt(with(fastfood1.df, tapply(!is.na(fte) , state, sum) )))^2 )
+
+
+
 
 ## Standard error with unequal variance formula
 ## Having trouble generating the published standard errors
@@ -110,7 +126,7 @@ summary(didregression  <- lmer(value ~ state*variable  + (1 | sheet ), data=subs
 
 
 ## This replicates the mean change result!
-final_data=subset(fastfood.long.df, (variable=="fte" & !.isna(value)) | (variable=="fte2" & status2 %in% c(1,3) ))
+final_data=subset(fastfood.long.df, (variable=="fte" & !is.na(value)) | (variable=="fte2" & status2 %in% c(1,3) ))
 summary(didregression  <- lm(value ~ factor(sheet) + state*variable, data=final_data))
 coeftest(didregression, vcovHC(didregression, type = 'HC1', cluster = 'group'))
 

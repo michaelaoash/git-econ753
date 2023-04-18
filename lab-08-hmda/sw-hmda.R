@@ -57,6 +57,10 @@ summary( select(hmda,deny,black,pi_rat,hse_inc,ltv_med, ltv_high,ccred,mcred,pub
 
 by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, summary)
 
+hmda %>% group_by(black) %>%
+    select(deny,pi_rat,hse_inc,ltv_med,ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo) %>%
+    summarize(mean(deny), median(pi_rat), mean(pi_rat) )
+
 
 describe( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
 ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
@@ -106,6 +110,13 @@ hmda.p <- glm(deny ~ race + pi_rat + hse_inc + ltv_med + ltv_high
              + ccred + mcred + pubrec + denpmi + selfemp, data=hmda, family=binomial(link=probit))
 summary(hmda.p)
 coeftest(hmda.p,vcov=vcovHC(hmda.p,type="HC1"))
+
+
+
+hmda.l <- glm(deny ~ race + pi_rat + hse_inc + ltv_med + ltv_high
+             + ccred + mcred + pubrec + denpmi + selfemp, data=hmda, family=binomial(link=logit))
+summary(hmda.l)
+coeftest(hmda.l,vcov=vcovHC(hmda.l,type="HC1"))
 
 
 

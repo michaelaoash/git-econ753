@@ -2,8 +2,9 @@
 ## Do these need (one-time) installation?
 library(tidyverse) ## Includes advanced data management and graphics
 library(haven) ## to read Stata and other data formats
+library(labelled)
 library(broom) ## Processing output
-library(tabyl) ## Advanced tabling commands
+library(janitor) ## Advanced tabling commands
 library(lmtest) ## For robust standard errors
 library(sandwich) ## For robust standard errors
 library(Hmisc) ## For some nicely formatted summary stats
@@ -13,8 +14,8 @@ library(Hmisc) ## For some nicely formatted summary stats
 ## width controls the column width of output
 options(scipen=1000,width=200)
 
-o## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
-cps <- read_dta("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
+## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
+cps <- read_stata("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
 
 ## list variables
 names(cps)
@@ -28,6 +29,7 @@ mean(cps$ed)
 sd(cps$ed)
 
 table(cps$ed)
+cps %>% tabyl(ed)
 stem(cps$ed)
 
 stem(cps$lnwage)
@@ -48,6 +50,21 @@ with(cps, table(as_factor(occupation),fe))
 
 xtabs(~ occupation + fe, data=cps)
 xtabs(~ as_factor(occupation) + fe, data=cps)
+
+
+## Occupation comes in from Stata as labelled but the label is not
+## used by default
+cps %>% tabyl(occupation,fe) %>% adorn_title()
+
+cps %>% as_factor() %>% tabyl(occupation,fe) %>% adorn_title()
+
+cps %>% as_factor() %>% tabyl(occupation,industry) %>% adorn_title()
+
+cps %>% as_factor() %>% tabyl(occupation,industry, fe) %>% adorn_title()
+
+cps %>% as_factor() %>% tabyl(occupation,industry, fe) %>% adorn_title("combined")
+
+
 summary(xtabs(~ as_factor(occupation) + fe, data=cps))
 
 xtabs(~ as_factor(occupation) + fe + year, data=cps)
@@ -60,6 +77,24 @@ with(cps,tapply(lnwage,list(year,as_factor(ethnic)),mean))
 
 with(cps,tapply(exp(lnwage),list(year,as_factor(ethnic)),mean))
 
+fredr::fredr_set_key("2c43987fff98daa62e436c00e39f99ff")
+
+cpi1978  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1978-01-01"),
+             observation_end=as.Date("1978-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+
+cpi1985  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1985-01-01"),
+             observation_end=as.Date("1985-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+
+cpi2022  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("2022-01-01"),
+             observation_end=as.Date("2022-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+
+
+
+
+
 
 ## The "mutate" function (in the tidyverse package) takes a dataset,
 ## adds new variables, in this case "wage" and "college", and returns
@@ -67,12 +102,38 @@ with(cps,tapply(exp(lnwage),list(year,as_factor(ethnic)),mean))
 ## with "->"
 cps <- mutate(cps,
               wage = exp(lnwage),
+              rwage2022 = wage * cpi2022 / ifelse(year==1978, cpi1978, ifelse(year==1985, cpi1985, NA)),
               college = (ed >= 16)
               )
 
 
+
 ## Introducing ggplot(), a sophisticated graphics library included in tidyverse
 ggplot(cps, aes(x=factor(fe), y=lnwage)) + geom_bar(stat="summary", fun="mean")
+
+ggplot(cps %>% as_factor(), aes(x=occupation, y=lnwage)) + geom_bar(stat="summary", fun="mean")
+
+ggplot(cps %>% as_factor(), aes(x=occupation, y=rwage2022)) + geom_bar(stat="summary", fun="mean")
+
+ggplot(cps %>% as_factor(), aes(x=reorder(occupation, desc(rwage2022)), y=rwage2022)) +
+    geom_bar(stat="summary", fun="mean") 
+
+ggplot(cps %>% as_factor(), aes(x=reorder(occupation, desc(rwage2022)), y=rwage2022)) +
+    geom_bar(stat="summary", fun="mean") +
+    facet_grid(rows=vars(year))
+
+ggplot(cps %>% as_factor(), aes(x=reorder(occupation, desc(rwage2022)), y=rwage2022, fill=factor(year))) +
+    geom_bar(stat="summary", fun="mean", position="dodge") 
+
+
+ggplot(cps %>% as_factor(), aes(x=reorder(occupation, desc(rwage2022)), y=rwage2022, fill=factor(year))) +
+    geom_bar(stat="summary", fun="mean", position="dodge", width=0.5) 
+
+ggplot(cps %>% as_factor(), aes(x=college, y=rwage2022, fill=factor(year))) +
+    geom_bar(stat="summary", fun="mean", position="dodge", width=0.5) 
+
+
+
 
 ggplot(cps, aes(x=factor(fe), y=exp(lnwage), fill=factor(fe))) + geom_bar(stat="summary", fun="mean")
 

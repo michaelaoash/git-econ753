@@ -1,5 +1,6 @@
 library(tidyverse)  ## include dplyr
 library(haven)      ## read dta files, etc.
+library(janitor)
 
 cps  <- read_dta("chap5-cps.dta")
 

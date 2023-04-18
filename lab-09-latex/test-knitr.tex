@@ -103,11 +103,11 @@ point we hand random-number generation back to the system:
 
 
 
-The coin comes up tails.
+The coin comes up heads.
 
 
 
-Here is the result of another coin toss.  The coin comes up heads instead.
+Here is the result of another coin toss.  The coin comes up tails instead.
 
 A boring plot in ggplot can be see in Figure~\ref{fig:boring}.
 
@@ -133,7 +133,7 @@ Summary statistics are in Table~\ref{tab:summary}.
 \end{alltt}
 \end{kframe}
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 10:58:07 AM
+% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
 \begin{table}[!htbp] \centering 
   \caption{Summary statistics} 
   \label{tab:summary} 
@@ -160,7 +160,7 @@ And the regression results are in Table~\ref{tab:regression}
 \end{alltt}
 \end{kframe}
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 10:58:07 AM
+% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
 \begin{table}[!htbp] \centering 
   \caption{Regression results} 
   \label{tab:regression} 
@@ -201,13 +201,13 @@ F Statistic & 89.567$^{***}$ (df = 1; 48) & 47.141$^{***}$ (df = 2; 47) & 31.584
 
 \begin{kframe}
 \begin{alltt}
-\hlkwd{stargazer}\hlstd{(model1, model2, model3,} \hlkwc{title}\hlstd{=}\hlstr{"Regression results"}\hlstd{,} \hlkwc{label}\hlstd{=}\hlstr{"tab:regression:newnames"}\hlstd{)}
+\hlkwd{stargazer}\hlstd{(model1, model2, model3,} \hlkwc{title}\hlstd{=}\hlstr{"Regression results with new names"}\hlstd{,} \hlkwc{label}\hlstd{=}\hlstr{"tab:regression:newnames"}\hlstd{)}
 \end{alltt}
 \end{kframe}
 % Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 10:58:07 AM
+% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
 \begin{table}[!htbp] \centering 
-  \caption{Regression results} 
+  \caption{Regression results with new names} 
   \label{tab:regression:newnames} 
 \begin{tabular}{@{\extracolsep{5pt}}lccc} 
 \\[-1.8ex]\hline 
@@ -220,11 +220,8 @@ F Statistic & 89.567$^{***}$ (df = 1; 48) & 47.141$^{***}$ (df = 2; 47) & 31.584
  speed & 3.932$^{***}$ & 0.913 & 6.801 \\ 
   & (0.416) & (2.034) & (6.801) \\ 
   & & & \\ 
- I(speed$\hat{\mkern6mu}$2) &  & 0.100 &  \\ 
-  &  & (0.066) &  \\ 
-  & & & \\ 
- Speed-squared &  &  & $-$0.350 \\ 
-  &  &  & (0.500) \\ 
+ Speed-squared &  & 0.100 & $-$0.350 \\ 
+  &  & (0.066) & (0.500) \\ 
   & & & \\ 
  Speed-cubed &  &  & 0.010 \\ 
   &  &  & (0.011) \\ 
@@ -246,6 +243,12 @@ F Statistic & 89.567$^{***}$ (df = 1; 48) & 47.141$^{***}$ (df = 2; 47) & 31.584
 
 
 
-
 Do the chunks work? You should be able to compile the \LaTeX{} document.
+
+
+
+
 \end{document}
+
+
+

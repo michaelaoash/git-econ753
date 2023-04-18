@@ -87,13 +87,18 @@ summary(chow60.lm.wls.alt <- lm( I(sqrt(VOLUME)*log(RENT)) ~
                            I(sqrt(VOLUME)*year65),data=chow60))
 
 
-names(chow60.lm.wls.alt$coefficients)  <- gsub("I\\(sqrt\\(VOLUME\\)[ *]+","", names(chow60.lm.wls.alt$coefficients))
-names(chow60.lm.wls.alt$coefficients)  <- gsub("I\\(sqrt\\(VOLUME\\)\\)","(Intercept)))", names(chow60.lm.wls.alt$coefficients))
-names(chow60.lm.wls.alt$coefficients)  <- gsub("\\)$","", names(chow60.lm.wls.alt$coefficients))
-names(chow60.lm.wls.alt$coefficients)  <- gsub("\\)\\)",")", names(chow60.lm.wls.alt$coefficients))
-
+names(chow60.lm.wls.alt$coefficients)
+names(chow60.lm$coefficients)
 
 library(stargazer)
+stargazer(chow60.lm, chow60.lm.wls,chow60.lm.wls.alt, type="text")
+
+
+names(chow60.lm.wls.alt$coefficients)  <- gsub("I\\(sqrt\\(VOLUME\\)[ *]+","", names(chow60.lm.wls.alt$coefficients))
+names(chow60.lm.wls.alt$coefficients)  <- gsub("I\\(sqrt\\(VOLUME\\)\\)","(Intercept))", names(chow60.lm.wls.alt$coefficients))
+names(chow60.lm.wls.alt$coefficients)  <- gsub("\\)$","", names(chow60.lm.wls.alt$coefficients))
+
+
 stargazer(chow60.lm, chow60.lm.wls,chow60.lm.wls.alt, type="text")
 
 

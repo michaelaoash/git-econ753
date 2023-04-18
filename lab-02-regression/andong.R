@@ -33,7 +33,10 @@ frisch_waugh_lovell <- function(df, y, x, label, control) {
     print(coeftest(lm_mvr <- lm(reg_mvr, df)))
 
     ## residualize y on the control variables
+    print(paste(y, " ~ ", control))
     reg_ycontrol <- as.formula(paste(y, " ~ ", control))
+    print(reg_ycontrol)
+    
     uy.lm  <- lm(reg_ycontrol, df)
 
     ## residualize x on the control variables

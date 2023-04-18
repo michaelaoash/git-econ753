@@ -24,10 +24,14 @@ ggplot(data=anscombe_tidy, aes(x=x, y=y, color=set)) +
     geom_smooth(method = "lm", se = TRUE)
 
 
+ggplot(data=anscombe_tidy, aes(x=x, y=y, color=set)) +
+    geom_point() +
+    facet_wrap(vars(set)) 
+
+
 ggplot(anscombe_tidy, aes(x=x, y=y, color=observation, size=set)) +
     geom_point() +
     facet_wrap (~ set)
-
 
 ggplot(anscombe, aes(x=x1, y=y1)) + geom_point(color="blue") +
     geom_point(aes(x=x2,y=y2), color="red") +

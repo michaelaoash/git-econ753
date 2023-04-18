@@ -82,7 +82,7 @@ stargazer(model1, model2, model3, title="Regression results", label="tab:regress
 
 <<change-coefficient-names,echo=FALSE>>=
 names(model1$coefficients)[names(model1$coefficients) == "I(speed^2)"] <- "Speed-squared"
-## Intentional error.  names(model2$coefficients)[names(model2$coefficients) == "I(speed^2)"] <- "Speed-squared"
+names(model2$coefficients)[names(model2$coefficients) == "I(speed^2)"] <- "Speed-squared"
 names(model3$coefficients)[names(model3$coefficients) == "I(speed^2)"] <- "Speed-squared"
 names(model1$coefficients)[names(model1$coefficients) == "I(speed^3)"] <- "Speed-cubed"
 names(model2$coefficients)[names(model2$coefficients) == "I(speed^3)"] <- "Speed-cubed"
