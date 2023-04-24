@@ -12,6 +12,31 @@ rm(list=ls())
 
 ld<-function(x)c( x[2:(length(x))],NA )
 
+cochrane.orcutt <- function(mod){
+     X <- model.matrix(mod)
+     y <- model.response(model.frame(mod))
+     e <- residuals(mod)
+     n <- length(e)
+     names <- colnames(X)
+     rho <- sum(e[1:(n-1)]*e[2:n])/sum(e^2)
+     ## cheat and know the answer (then it works)
+     ## rho <- 0.868
+     y <- y[2:n] - rho * y[1:(n-1)]
+     X <- X[2:n,] - rho * X[1:(n-1),]
+     mod <- lm(y ~ X - 1)
+     result <- list()
+     result$coefficients <- coef(mod)
+     names(result$coefficients) <- names
+     summary <- summary(mod, corr = F)
+     result$cov <- (summary$sigma^2) * summary$cov.unscaled
+     dimnames(result$cov) <- list(names, names)
+     result$sigma <- summary$sigma
+     result$rho <- rho
+     class(result) <- 'cochrane.orcutt'
+     result
+     }
+
+
 
 kopcke <- read.csv("chap6-kopcke.csv")
 
@@ -94,7 +119,7 @@ dwtest(eqn614s)
 (eqn614s_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
                     is ~ y + dplyr::lag(y) + dplyr::lag(is) ))
 dwtest(eqn614s_ols)
-(eqn614s_co  <- cochrane.orcutt(eqn614s_ols, max.iter=500))
+(eqn614s_co  <- cochrane.orcutt(eqn614s_ols))
 dwtest(eqn614s_co)
 (lambda <- 1 - coef(eqn614s_co)[4])
 (mu <- coef(eqn614s_co)[2] / lambda)
