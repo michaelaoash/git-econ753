@@ -9,6 +9,8 @@ library(nlme)
 options(scipen=10000, width=200)
 options(rlang_backtrace_on_error = "none")
 
+setwd("lab-09-time-series/")
+
 rm(list=ls())
 
 ld<-function(x)c( x[2:(length(x))],NA )
@@ -37,6 +39,12 @@ summary(dynlm(data=kopcke.z2, ie ~ L(y,0:12) + kelag, start=c(1956,1),end=c(1979
 
 summary(dynlm(data=kopcke.z2, ie ~ L(y,0:12) + kelag, start=c(1956,1),end=c(1986,4)  ) )
 
+
+
+## Almon Polynomial Distributed Lag (PDL)
+
+## First try with a cubic with 11 lags (12 terms)  That is a mistake.  Use 6.
+
 kopcke.dlag <- dplyr::mutate(data.frame(kopcke.z2),
                  z0 = y + dplyr::lag(y,1) + dplyr::lag(y,2) + dplyr::lag(y,3) + dplyr::lag(y,4) + dplyr::lag(y,5) + dplyr::lag(y,6) +
                      dplyr::lag(y,7) + dplyr::lag(y,8) + dplyr::lag(y,9) + dplyr::lag(y,10) + dplyr::lag(y,11),
@@ -49,12 +57,10 @@ kopcke.dlag <- dplyr::mutate(data.frame(kopcke.z2),
 
 kopcke.dlag.z <- zoo(kopcke.dlag,order.by=kopcke.dt)
 
-
 summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
 summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
 summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
 summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
-
 
 b  <- attr(car::linearHypothesis(model=dlag.lm, c("z0 + 0*z1 + 0*z2 + 0*z3"), verbose=TRUE),"value" )
 b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 1*z1 + 1*z2 + 1*z3"), verbose=TRUE),"value"))
@@ -82,8 +88,8 @@ se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 9*z1 + 81*z2 
 se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 10*z1 + 100*z2 + 1000*z3"), verbose=TRUE),"vcov")))
 se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 11*z1 + 121*z2 + 1331*z3"), verbose=TRUE),"vcov")))
 
-ggplot(data.frame(b,se), aes(x = 1:12, y=b, ymin=b-2*se, ymax=b+2*se)) +
-    geom_point() + geom_errorbar() +
+ggplot(data.frame(b,se), aes(x = 0:11, y=b, ymin=b-2*se, ymax=b+2*se)) +
+    geom_point() + geom_line() + geom_errorbar() +
     scale_x_continuous(breaks=0:12)
 
 
@@ -100,6 +106,164 @@ ggplot(data.frame(b,se), aes(x = 1:12, y=b, ymin=b-2*se, ymax=b+2*se)) +
 (b9 = dlag.lm$coefficients['z0'] + 9*dlag.lm$coefficients['z1'] + 9^2*dlag.lm$coefficients['z2'] + 9^3*dlag.lm$coefficients['z3'])
 (b10 = dlag.lm$coefficients['z0'] + 10*dlag.lm$coefficients['z1'] + 10^2*dlag.lm$coefficients['z2'] + 10^3*dlag.lm$coefficients['z3'])
 (b11 = dlag.lm$coefficients['z0'] + 11*dlag.lm$coefficients['z1'] + 11^2*dlag.lm$coefficients['z2'] + 11^3*dlag.lm$coefficients['z3'])
+
+
+
+
+
+
+
+
+## Try with a quadratic
+
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+
+b  <- attr(car::linearHypothesis(model=dlag.lm, c("z0 + 0*z1 + 0*z2"), verbose=TRUE),"value" )
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 1*z1 + 1*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 2*z1 + 4*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 3*z1 + 9*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 4*z1 + 16*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 5*z1 + 25*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 6*z1 + 36*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 7*z1 + 49*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 8*z1 + 64*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 9*z1 + 81*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 10*z1 + 100*z2"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 11*z1 + 121*z2"), verbose=TRUE),"value"))
+
+se  <- sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 0*z1 + 0*z2"), verbose=TRUE),"vcov" ))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 1*z1 + 1*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 2*z1 + 4*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 3*z1 + 9*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 4*z1 + 16*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 5*z1 + 25*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 6*z1 + 36*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 7*z1 + 49*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 8*z1 + 64*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 9*z1 + 81*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 10*z1 + 100*z2"), verbose=TRUE),"vcov")))
+se  <- c(se,sqrt(attr(car::linearHypothesis(model=dlag.lm, c("z0 + 11*z1 + 121*z2"), verbose=TRUE),"vcov")))
+
+
+ggplot(data.frame(b,se), aes(x = 0:11, y=b, ymin=b-2*se, ymax=b+2*se)) +
+    geom_line() + geom_errorbar() +
+    scale_x_continuous(breaks=0:12)
+
+(b0 = dlag.lm$coefficients['z0'] + 0*dlag.lm$coefficients['z1'] + 0^2*dlag.lm$coefficients['z2'])
+(b1 = dlag.lm$coefficients['z0'] + 1*dlag.lm$coefficients['z1'] + 1^2*dlag.lm$coefficients['z2'])
+(b2 = dlag.lm$coefficients['z0'] + 2*dlag.lm$coefficients['z1'] + 2^2*dlag.lm$coefficients['z2'])
+(b3 = dlag.lm$coefficients['z0'] + 3*dlag.lm$coefficients['z1'] + 3^2*dlag.lm$coefficients['z2'])
+(b4 = dlag.lm$coefficients['z0'] + 4*dlag.lm$coefficients['z1'] + 4^2*dlag.lm$coefficients['z2'])
+(b5 = dlag.lm$coefficients['z0'] + 5*dlag.lm$coefficients['z1'] + 5^2*dlag.lm$coefficients['z2'])
+(b6 = dlag.lm$coefficients['z0'] + 6*dlag.lm$coefficients['z1'] + 6^2*dlag.lm$coefficients['z2'])
+(b7 = dlag.lm$coefficients['z0'] + 7*dlag.lm$coefficients['z1'] + 7^2*dlag.lm$coefficients['z2'])
+(b8 = dlag.lm$coefficients['z0'] + 8*dlag.lm$coefficients['z1'] + 8^2*dlag.lm$coefficients['z2'])
+(b9 = dlag.lm$coefficients['z0'] + 9*dlag.lm$coefficients['z1'] + 9^2*dlag.lm$coefficients['z2'])
+(b10 = dlag.lm$coefficients['z0'] + 10*dlag.lm$coefficients['z1'] + 10^2*dlag.lm$coefficients['z2'])
+(b11 = dlag.lm$coefficients['z0'] + 11*dlag.lm$coefficients['z1'] + 11^2*dlag.lm$coefficients['z2'])
+
+
+
+## Quadratic with zero b12=0 constraint  (Warning: this section of code is iffy)
+
+summary(dlag.lm <- dynlm(ie ~ I(z1 - 12*z0) + I(z2 - 144*z0), data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+summary(dlag.lm <- dynlm(ie ~ I(z1 - 12*z0) + I(z2 - 144*z0), data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ I(z1 - 12*z0) + I(z2 - 144*z0) + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ I(z1 - 12*z0) + I(z2 - 144*z0) + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+
+
+zeta = c(-12*coef(dlag.lm)[2] -144*coef(dlag.lm)[3] , coef(dlag.lm)[2:3])
+
+(b0 = zeta[1] + 0*zeta[2] + 0^2*zeta[3])
+(b1 = zeta[1] + 1*zeta[2] + 1^2*zeta[3])
+(b2 = zeta[1] + 2*zeta[2] + 2^2*zeta[3])
+(b3 = zeta[1] + 3*zeta[2] + 3^2*zeta[3])
+(b4 = zeta[1] + 4*zeta[2] + 4^2*zeta[3])
+(b5 = zeta[1] + 5*zeta[2] + 5^2*zeta[3])
+(b6 = zeta[1] + 6*zeta[2] + 6^2*zeta[3])
+(b7 = zeta[1] + 7*zeta[2] + 7^2*zeta[3])
+(b8 = zeta[1] + 8*zeta[2] + 8^2*zeta[3])
+(b9 = zeta[1] + 9*zeta[2] + 9^2*zeta[3])
+(b10 = zeta[1] + 10*zeta[2] + 10^2*zeta[3])
+(b11 = zeta[1] + 11*zeta[2] + 11^2*zeta[3])
+(b12 = zeta[1] + 12*zeta[2] + 12^2*zeta[3])
+
+b <- c(b0, b1, b2, b3, b4, b5, b6, b7, b8, b9, b10, b11, b12)
+
+
+ggplot(data.frame(b), aes(x = 0:12, y=b)) +
+    geom_line() + geom_point()
+    scale_x_continuous(breaks=0:12)
+
+
+
+
+
+
+## Try a cubic with 6 lags (7 terms)
+
+kopcke.dlag <- dplyr::mutate(data.frame(kopcke.z2),
+                 z0 = y + dplyr::lag(y,1) + dplyr::lag(y,2) + dplyr::lag(y,3) + dplyr::lag(y,4) + dplyr::lag(y,5),
+                 z1 = 0*y + 1*dplyr::lag(y,1) + 2*dplyr::lag(y,2) + 3*dplyr::lag(y,3) + 4*dplyr::lag(y,4) + 5*dplyr::lag(y,5),
+                 z2 = 0^2*y + 1^2*dplyr::lag(y,1) + 2^2*dplyr::lag(y,2) + 3^2*dplyr::lag(y,3) + 4^2*dplyr::lag(y,4) + 5^2*dplyr::lag(y,5),
+                 z3 = 0^3*y + 1^3*dplyr::lag(y,1) + 2^3*dplyr::lag(y,2) + 3^3*dplyr::lag(y,3) + 4^3*dplyr::lag(y,4) + 5^3*dplyr::lag(y,5)
+                 )
+
+kopcke.dlag.z <- zoo(kopcke.dlag,order.by=kopcke.dt)
+
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1986,4) ))
+summary(dlag.lm <- dynlm(ie ~ z0 + z1 + z2 + z3 + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+
+b  <- attr(car::linearHypothesis(model=dlag.lm, c("z0 + 0*z1 + 0*z2 + 0*z3"), verbose=TRUE),"value" )
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 1*z1 + 1*z2 + 1*z3"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 2*z1 + 4*z2 + 8*z3"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 3*z1 + 9*z2 + 27*z3"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 4*z1 + 16*z2 + 64*z3"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 5*z1 + 25*z2 + 125*z3"), verbose=TRUE),"value"))
+b  <- c(b,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 6*z1 + 36*z2 + 216*z3"), verbose=TRUE),"value"))
+
+se  <- attr(car::linearHypothesis(model=dlag.lm, c("z0 + 0*z1 + 0*z2 + 0*z3"), verbose=TRUE),"vcov" )
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 1*z1 + 1*z2 + 1*z3"), verbose=TRUE),"vcov"))
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 2*z1 + 4*z2 + 8*z3"), verbose=TRUE),"vcov"))
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 3*z1 + 9*z2 + 27*z3"), verbose=TRUE),"vcov"))
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 4*z1 + 16*z2 + 64*z3"), verbose=TRUE),"vcov"))
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 5*z1 + 25*z2 + 125*z3"), verbose=TRUE),"vcov"))
+se  <- c(se,attr(car::linearHypothesis(model=dlag.lm, c("z0 + 6*z1 + 36*z2 + 216*z3"), verbose=TRUE),"vcov"))
+se <- sqrt(se)
+
+ggplot(data.frame(b,se), aes(x = 0:6, y=b, ymin=b-2*se, ymax=b+2*se)) +
+    geom_point() + geom_line() + geom_errorbar() +
+    scale_x_continuous(breaks=0:6)
+
+
+
+## Try a cubic with 5 lags (6 terms include contemporaneous) constraining b6=0
+summary(dlag.lm <- dynlm(ie ~ I(-6*z0 + z1) + I(-36*z0 + z2) + I(-216*z0 + z3) + kelag, data=kopcke.dlag.z,start=c(1956,1),end=c(1979,4) ))
+
+zeta = c( -6*coef(dlag.lm)[2] - 36*coef(dlag.lm)[3] - 216*coef(dlag.lm)[4], coef(dlag.lm)[2:4])
+
+(b0 = zeta[1] + 0*zeta[2] + 0^2*zeta[3] + 0^3*zeta[4])
+(b1 = zeta[1] + 1*zeta[2] + 1^2*zeta[3] + 1^3*zeta[4])
+(b2 = zeta[1] + 2*zeta[2] + 2^2*zeta[3] + 2^3*zeta[4])
+(b3 = zeta[1] + 3*zeta[2] + 3^2*zeta[3] + 3^3*zeta[4])
+(b4 = zeta[1] + 4*zeta[2] + 4^2*zeta[3] + 4^3*zeta[4])
+(b5 = zeta[1] + 5*zeta[2] + 5^2*zeta[3] + 5^3*zeta[4])
+(b6 = zeta[1] + 6*zeta[2] + 6^2*zeta[3] + 6^3*zeta[4])
+
+b <- c(b0, b1, b2, b3, b4, b5, b6)
+
+ggplot(data.frame(b), aes(x=0:6, y=b)) +
+    geom_point() + geom_line() +
+    scale_x_continuous(breaks=0:6)
+
+
+
+
 
 
 
@@ -213,4 +377,10 @@ subset(kopcke.df1,Year>=1985.75 & Year<1987,select=c(is,kslag,Year))
 (ks86.4 <- kopcke.df1["1986 Q4","kslag"])
 (is86 <- (kopcke.df1["1986 Q1","is"] + kopcke.df1["1986 Q2","is"] + kopcke.df1["1986 Q3","is"] + kopcke.df1["1986 Q4","is"])/4 )
 (delta86 <- 1 - (ks86.4 - is86) / ks85.4)
+
+
+
+
+
+
 
