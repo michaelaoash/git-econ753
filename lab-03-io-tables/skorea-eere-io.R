@@ -1,3 +1,4 @@
+library(here)
 library(tidyverse)
 library(readxl)
 library(reshape2)
@@ -7,14 +8,14 @@ rm(list=ls())
 
 ## Use the domestic coefficients!!!
 ## Asheet  <-  read_xlsx('Input-Output tables_Producers price--Detailed Table--08202021.xlsx',sheet='Input coefficients', range="A6:FK171") %>% rename(Code="...1", Industry="...2")
-Asheet  <-  read_xlsx('Input-Output tables_Producers price--Detailed Table--08202021.xlsx',sheet='Input coefficients(dom)', range="A6:FK171") %>% rename(Code="...1", Industry="...2")
+Asheet  <-  read_xlsx(here('lab-03-io-tables','Input-Output tables_Producers price--Detailed Table--08202021.xlsx'),sheet='Input coefficients(dom)', range="A6:FK171") %>% rename(Code="...1", Industry="...2")
 A  <- data.matrix(select(Asheet,-c(1,2)))
 A  <- as.matrix(select(Asheet,-c(1,2)))
 rownames(A)  <- unlist(select(Asheet, Industry))
 
 leontief  <- solve(diag(dim(A)[1]) - A)
 
-Esheet  <-  read_xlsx('I-O Analysis for Tutorial--02152023--SC.xlsx', 'E-O Ratio(commodities)', range="A4:L169") %>% select(Code="Commodity...1", Industry, "E/O Ratio" )
+Esheet  <-  read_xlsx(here('lab-03-io-tables','I-O Analysis for Tutorial--02152023--SC.xlsx'), 'E-O Ratio(commodities)', range="A4:L169") %>% select(Code="Commodity...1", Industry, "E/O Ratio" )
 EO  <- data.matrix(select(Esheet,3))
 
 ## Multiply leontief rowise by EO to leontief employment matrix
@@ -26,7 +27,7 @@ leontief.employment  <- sweep(leontief, 1, EO, "*")
 ## a11  <- read_delim("table_a11.csv", col_types=c("ccn")) %>% mutate(Weights=Weights/100)
 ## a11  <- dcast(a11, Industry ~ Sector) %>% replace(is.na(.), 0)
 ## M <- full_join( select(Asheet,Industry), a11) %>% replace(is.na(.), 0)
-Msheet  <-  read_xlsx('I-O Analysis for Tutorial--02152023--SC.xlsx', 'New Program CC (USD)', range="B4:FK26") %>%
+Msheet  <-  read_xlsx(here('lab-03-io-tables','I-O Analysis for Tutorial--02152023--SC.xlsx'), 'New Program CC (USD)', range="B4:FK26") %>%
     rename(Sector="...1") %>%
     slice(5:21) %>%
     melt(variable.name="Industry") %>%
