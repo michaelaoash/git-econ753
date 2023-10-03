@@ -1,0 +1,146 @@
+\documentclass{beamer}\usepackage{pgfpages} \mode<beamer>{ \usetheme{Warsaw}
+\setbeamertemplate{footline}[page number]
+\setbeamertemplate{navigation symbols}{}} 
+\newcommand{\cov}{\text{cov}}
+
+\usepackage{lmodern}
+
+\usepackage{dcolumn}
+\newcolumntype{.}{D{.}{.}{-1}}
+
+
+\title{ Applied Econometrics }
+\subtitle{ Labor Econometrics}
+\author{Michael Ash}
+\institute{Applied Econometrics}
+\date{}
+
+\begin{document}
+
+\begin{frame}
+  Poisson probability formula
+\begin{displaymath}
+  \Pr (X = k) = \frac{e^{-\lambda} \cdot \lambda^k  }{k!}
+\end{displaymath}
+\end{frame}
+
+
+
+\begin{frame}
+
+How likely were we to see the exact sample we saw?
+\begin{displaymath}
+  \Pr \left( Y_1= y_1, Y_2= y_2, \ldots Y_n= y_n | \lambda  \right)
+\end{displaymath}
+
+\begin{displaymath}
+  \Pr \left( Y_1= y_1 | \lambda \right) \cdot
+  \Pr \left( Y_2= y_2 | \lambda \right) \cdot
+  \cdots
+  \Pr \left( Y_n= y_n | \lambda \right) 
+\end{displaymath}
+
+
+\begin{displaymath}
+  \frac{e^{-\lambda} \cdot \lambda^{y_1}}{{y_1}!}  \cdot
+  \frac{e^{-\lambda} \cdot \lambda^{y_2}}{{y_2}!}  \cdot
+  \cdots
+  \frac{e^{-\lambda} \cdot \lambda^{y_n}}{{y_n}!}  
+\end{displaymath}
+
+Reminder the little $y_i$ are data observed in the world.
+\end{frame}
+
+
+
+\begin{frame}
+\begin{displaymath}
+\mathcal{L} = \frac{e^{-\lambda} \cdot \lambda^{y_1}}{{y_1}!}  \cdot
+  \frac{e^{-\lambda} \cdot \lambda^{y_2}}{{y_2}!}  \cdot
+  \cdots
+  \frac{e^{-\lambda} \cdot \lambda^{y_n}}{{y_n}!}  
+\end{displaymath}
+
+Taking log converts multiplication problems into additional problems
+
+\begin{displaymath}
+\ln \mathcal{L} = \ln \frac{e^{-\lambda} \cdot \lambda^{y_1}}{{y_1}!}  +
+  \ln \frac{e^{-\lambda} \cdot \lambda^{y_2}}{{y_2}!}  +
+  \cdots
+  \ln \frac{e^{-\lambda} \cdot \lambda^{y_n}}{{y_n}!}  
+\end{displaymath}
+
+
+\end{frame}
+
+\begin{frame}
+  
+
+\begin{displaymath}
+\ln \mathcal{L} = \ln \frac{e^{-\lambda} \cdot \lambda^{y_1}}{{y_1}!}  +
+  \ln \frac{e^{-\lambda} \cdot \lambda^{y_2}}{{y_2}!}  +
+  \cdots
+  \ln \frac{e^{-\lambda} \cdot \lambda^{y_n}}{{y_n}!}  
+\end{displaymath}
+
+Zoom in on one of the elements:
+
+\begin{displaymath}
+  \ln \mathcal{L}_1 = \ln \frac{e^{-\lambda} \cdot \lambda^{y_1}}{{y_1}!}
+  =  \ln e^{-\lambda} + \ln \lambda^{y_1}  - {\ln {y_1}!}  =
+\end{displaymath}
+\begin{displaymath}
+ -\lambda + y_1 \ln \lambda - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1
+\end{displaymath}
+
+Zoom back out (there are $n$ of these expressions to add up):
+
+\begin{displaymath}
+  \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
+\end{displaymath}
+\begin{align}
+  - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1 \nonumber\\
+ - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - 1 \nonumber\\
+ - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - 1 \nonumber
+\end{align}
+\end{frame}
+
+\begin{frame}
+  The second batch of stuff changes the level of  $\ln \mathcal{L}$ but does not depend on $\lambda$.  Only the first batch does:
+\begin{displaymath}
+  \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
+\end{displaymath}
+\begin{align}
+  - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1 \nonumber\\
+ - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - 1 \nonumber\\
+ - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - 1 \nonumber
+\end{align}
+
+
+\begin{displaymath}
+  \max_\lambda   \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
+\end{displaymath}
+
+
+\begin{displaymath}
+  -n  + \frac{1}{\hat{\lambda}} (y_1 + y_2 + \cdots + y_n) \equiv 0
+\end{displaymath}
+
+\begin{displaymath}
+  \hat{\lambda} = (y_1 + y_2 + \cdots + y_n) / n
+\end{displaymath}
+
+
+
+\end{frame}
+
+
+
+\end{document}
+
+
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

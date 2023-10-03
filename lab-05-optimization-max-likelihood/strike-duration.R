@@ -40,7 +40,7 @@ poissonll <- function(beta) {
 
 ## Find log lambda that minimizes negative log likelihood
 (poissonll.opt  <- optimize( poissonll, interval=c(0,5)  ))
-(poissonll.opt  <- optim( 1,  poissonll ))
+(poissonll.opt  <- optim( par=1,  poissonll ))
 ## Lambda
 exp(poissonll.opt$par)
 
@@ -62,7 +62,7 @@ poissonll <- function(beta) {
 
 ## Find log lambda that minimizes negative log likelihood
 (poissonll.opt  <- optimize( poissonll, interval=c(0,5)  ))
-(poissonll.opt  <- optim( 1,  poissonll ))
+(poissonll.opt  <- optim( par=1,  poissonll ))
 ## Lambda
 exp(poissonll.opt$par)
 
