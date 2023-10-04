@@ -20,10 +20,51 @@
 \begin{frame}
   Poisson probability formula
 \begin{displaymath}
-  \Pr (X = k) = \frac{e^{-\lambda} \cdot \lambda^k  }{k!}
+  \Pr (Y = k) = \frac{e^{-\lambda} \cdot \lambda^k  }{k!}
 \end{displaymath}
+
+\begin{itemize}
+\item This is the probability of exactly $k$ (non-negative integer)
+  occurrences of a random count variable $Y$.
+\item There is only one parameter, $\lambda$, the ``arrival rate'' or
+  the Expected (average) number of occurrences, which makes the
+  expression easy to manipulate.
+\item It is the limiting case of a binomial process when the number of
+  trials $n$ is high and the probability $p$ is low. The sole
+  parameter $\lambda = np$ is the expected count. 
+\item It is not surprising that $E(Y)=\lambda$.  It may be more surprising that, if it's really Poisson, also $\text{var}(Y)=\lambda$ 
+\end{itemize}
+
 \end{frame}
 
+\begin{frame}[fragile]
+  We work with the Kiefer strike duration data recorded between 1968
+  and 1976. Each of the 62 observations is a strike for which the main
+  variable of interest (dependent variable) is the duration of the
+  strike in days.  Other variables include the year of the strike and
+  an industrial production index for the year. The logic of the model is that
+  strikes will be shorter when industrial production is high because
+  firms have strong incentives to settle and get back to making
+  profits.
+
+\begin{verbatim}
+ year strike_duration       ip
+ 1968               7  0.01138
+ 1968               9  0.01138
+ 1968              13  0.01138
+ 1968              14  0.01138
+ 1968              26  0.01138
+ 1968              29  0.01138
+ 1968              52  0.01138
+ 1968             130  0.01138
+ 1969               9  0.02299
+ 1969              37  0.02299
+ 1969              41  0.02299
+ 1969              49  0.02299
+ 1969              52  0.02299
+ 1969             119  0.02299
+\end{verbatim}
+\end{frame}
 
 
 \begin{frame}
@@ -90,7 +131,7 @@ Zoom in on one of the elements:
   =  \ln e^{-\lambda} + \ln \lambda^{y_1}  - {\ln {y_1}!}  =
 \end{displaymath}
 \begin{displaymath}
- -\lambda + y_1 \ln \lambda - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1
+ -\lambda + y_1 \ln \lambda - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - \ln 1
 \end{displaymath}
 
 Zoom back out (there are $n$ of these expressions to add up):
@@ -99,9 +140,9 @@ Zoom back out (there are $n$ of these expressions to add up):
   \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
 \end{displaymath}
 \begin{align}
-  - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1 \nonumber\\
- - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - 1 \nonumber\\
- - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - 1 \nonumber
+ - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - \ln 1 \nonumber\\
+ - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - \ln 1 \nonumber\\
+ - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - \ln 1 \nonumber
 \end{align}
 \end{frame}
 
@@ -111,9 +152,9 @@ Zoom back out (there are $n$ of these expressions to add up):
   \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
 \end{displaymath}
 \begin{align}
-  - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - 1 \nonumber\\
- - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - 1 \nonumber\\
- - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - 1 \nonumber
+  - \ln (y_1) - \ln (y_1 - 1) - \ln (y_1 - 2) - \cdots - \ln 1 \nonumber\\
+ - \ln (y_2) - \ln (y_2 - 1) - \ln (y_2 - 2) - \cdots - \ln 1 \nonumber\\
+ - \ln (y_n) - \ln (y_n - 1) - \ln (y_n - 2) - \cdots - \ln 1 \nonumber
 \end{align}
 
 
@@ -131,10 +172,145 @@ Zoom back out (there are $n$ of these expressions to add up):
 \end{displaymath}
 
 
+\end{frame}
+
+
+
+\begin{frame}
+  But now let's revisit that with slightly different syntax. Let
+  $\beta = \ln \lambda$ and maximize with respect to $\beta$
+
+
+\begin{displaymath}
+  \max_\lambda   \ln \mathcal{L} = -n \lambda + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
+\end{displaymath}
+
+
+\begin{displaymath}
+  \max_{\ln \lambda}   \ln \mathcal{L} = -n e^{\ln \lambda} + (y_1 + y_2 + \cdots + y_n) \ln \lambda 
+\end{displaymath}
+
+
+\begin{displaymath}
+  \max_{\beta}   \ln \mathcal{L} = -n e^{\beta} + (y_1 + y_2 + \cdots + y_n) \beta
+\end{displaymath}
+
+
+\begin{displaymath}
+  -n e^{\hat{\beta}}  + (y_1 + y_2 + \cdots + y_n) \equiv 0
+\end{displaymath}
+
+\begin{displaymath}
+  e^{\hat{\beta}} = (y_1 + y_2 + \cdots + y_n)/n
+\end{displaymath}
+
+\begin{displaymath}
+  \hat{\beta} = \ln \left( (y_1 + y_2 + \cdots + y_n)/n \right)
+\end{displaymath}
+  
+\end{frame}
+
+\begin{frame}
+  In the code below, \texttt{y} is the full vector of strike durations $y = {7, 9, 13, 14, 26,\ldots}$, \texttt{cons} is the same length and made of 1's.  The last term, which is returned by the function, is the log likelihood, for each observation $-e^{\beta} + y_i \beta$ summed over all observations, or $-ne^{\beta} + \sum y_i \beta $.
+\end{frame}  
+
+\begin{verbatim}
+## log(lambda) = XB, in this case log(lambda) = B
+poissonll <- function(beta) {
+    y <- kiefer$strike_duration
+    cons <- rep(1, length(kiefer$strike_duration))
+    -sum( -exp(beta*cons) + y * beta * cons ) }
+\end{verbatim}
+
+
+This function ``rates'' the quality of the current guess of beta by
+returning the (negative) log likelihood for that guess of beta.  We
+give this function to R's optimizer and let the optimizer find the
+value of beta that maximizes the log likelihood (formally, by
+minimizing the negative log likelihood).
+
+\begin{verbatim}
+## Use optimizer to find beta, the log lambda that minimizes negative log likelihood
+(poissonll.opt  <- optim( par=1,  poissonll ))
+## Report lambda
+exp(poissonll.opt$par)
+\end{verbatim}
+
+
+\begin{frame}
+  This syntax lets us introduce covariates into the Poisson regression.
+
+  Now each observation $i$ has its own ``arrival rate'' $\lambda_i$,
+  which we express logged, $\ln \lambda_i$.  Instead of
+  $\ln \lambda_i = \beta$, we let
+  $\ln \lambda_i = \beta_1 + \beta_2 \text{ip}_i$, where $\text{ip}_i$
+  is the industrial production index for the year in which strike $i$
+  took place.
+
+  Strike $i$'s duration, which can be any non-negative integer, is drawn from a Poisson distribution in which the expected arrival rate is $\lambda_i$, which depends on the covariate $\text{ip}_i$ in this particular way, $\ln \lambda_i = \beta_1 + \beta_2 \text{ip}_i$.
+
+  A higher $\lambda$ will tend to generate longer strikes. In particular, a unit increase in the explanatory variable will make the average strike $\beta_2$ percent longer. 
+\end{frame}
+
+\begin{frame}
+  Let's repeat the zoom on one of the elements with the parameterized value of $\lambda_i$
+
+  \begin{displaymath}
+  \ln \mathcal{L}_i = \ln \frac{e^{-\lambda_i} \cdot \lambda_i^{y_i}}{{y_i}!}
+  =  \ln e^{-\lambda_i} + \ln \lambda_i^{y_i}  - {\ln {y_i}!}  =
+\end{displaymath}
+
+\begin{displaymath}
+ -\lambda_i + y_i \ln \lambda_i - \ln (y_i) - \ln (y_i - 1) - \ln (y_i - 2) - \cdots - \ln 1
+\end{displaymath}
+
+First, rewrite this in $\ln \lambda$ syntax:
+\begin{displaymath}
+ - e^{\ln \lambda_i} + y_i \ln \lambda_i - \ln (y_i) - \ln (y_i - 1) - \ln (y_i - 2) - \cdots - \ln 1
+\end{displaymath}
+
+Now substitute the parameterization, $\ln \lambda_i = \beta_1 + \beta_2 \text{ip}_i$
+\begin{displaymath}
+ - e^{\beta_1 + \beta_2 \text{ip}_i} + y_i (\beta_1 + \beta_2 \text{ip}_i) - \ln (y_i) - \ln (y_i - 1) - \ln (y_i - 2) - \cdots - \ln 1
+\end{displaymath}
+
 
 \end{frame}
 
 
+\begin{frame}
+  Let's zoom back out and drop the extraneous terms on the right that do not depend on $\beta$ or $\lambda$
+
+  \begin{align}
+    \ln \mathcal{L} = \nonumber\\
+  - e^{\beta_1 + \beta_2 \text{ip}_1} + y_1 (\beta_1 + \beta_2 \text{ip}_1) \nonumber\\
+  - e^{\beta_1 + \beta_2 \text{ip}_2} + y_2 (\beta_1 + \beta_2 \text{ip}_2)\nonumber\\
+  - e^{\beta_1 + \beta_2 \text{ip}_2} + y_3 (\beta_1 + \beta_2 \text{ip}_2) \nonumber\\
+  \cdots \nonumber\\
+  - e^{\beta_1 + \beta_2 \text{ip}_n} + y_n (\beta_1 + \beta_2 \text{ip}_n) \nonumber
+  \end{align}
+
+
+  The maximization is now over two parameters, $\beta_1$ and $\beta_2$,
+  instead of over one parameter $\beta$ (or $\lambda$) but as before
+  there is some $(\hat{\beta_1}, \hat{\beta_2})$ that makes
+  $ \ln \mathcal{L}$ as large as possible. These are the MLE estimates.
+  
+
+  
+\end{frame}
+
+Here \texttt{beta} is a two-element vector and the expression for $\ln \lambda_i$ includes the value of \texttt{x}$_i$.
+
+\tiny
+\begin{verbatim}
+poissonll2 <- function(beta) {
+    y <- kiefer$strike_duration
+    cons <- rep(1, length(kiefer$strike_duration))
+    x <- kiefer$ip
+    -sum(  -exp(beta[1]*cons + beta[2] * x) + y * (beta[1]*cons + beta[2] * x) )
+    }
+\end{verbatim}
 
 \end{document}
 

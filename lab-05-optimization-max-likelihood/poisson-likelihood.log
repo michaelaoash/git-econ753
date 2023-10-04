@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2023.5.30)  3 OCT 2023 12:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022/Debian) (preloaded format=pdflatex 2023.5.30)  3 OCT 2023 21:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -980,57 +980,94 @@ Dictionary: translator-numbers-dictionary, Language: English
 ry-English.dict
 Dictionary: translator-theorem-dictionary, Language: English 
 ) (./poisson-likelihood.nav)
-LaTeX Font Info:    Trying to load font information for OML+lmm on input line 2
-5.
+LaTeX Font Info:    Trying to load font information for OML+lmm on input line 3
+8.
 
 (/usr/share/texmf/tex/latex/lm/omllmm.fd
 File: omllmm.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMS+lmsy on input line 
-25.
+38.
 
 (/usr/share/texmf/tex/latex/lm/omslmsy.fd
 File: omslmsy.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    Trying to load font information for OMX+lmex on input line 
-25.
+38.
 
 (/usr/share/texmf/tex/latex/lm/omxlmex.fd
 File: omxlmex.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10.95> on input line 25.
+(Font)              <10.95> on input line 38.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <8> on input line 25.
+(Font)              <8> on input line 38.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <6> on input line 25.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 25.
+(Font)              <6> on input line 38.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 38.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 25.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 38.
 
 
 (/usr/share/texlive/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <10.95> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 25.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 38.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <8> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 25.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 38.
 LaTeX Font Info:    Font shape `OT1/lmss/m/it' in size <6> not available
-(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 25.
+(Font)              Font shape `OT1/lmss/m/sl' tried instead on input line 38.
  [1
 
-{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] [2
+{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
+\openout4 = `poisson-likelihood.vrb'.
+
+ (./poisson-likelihood.vrb
+LaTeX Font Info:    Trying to load font information for OT1+lmtt on input line 
+10.
+
+(/usr/share/texmf/tex/latex/lm/ot1lmtt.fd
+File: ot1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
+))
+Overfull \vbox (61.65352pt too high) detected at line 67
+ []
+
+[2
 
 ] [3
 
 ] [4
 
 ] [5
+
+] [6
+
+] [7
+
+] [8
+
+]
+Overfull \hbox (175.60374pt too wide) in paragraph at lines 237--237
+[]\OT1/lmtt/m/n/10.95 ## Use optimizer to find beta, the log lambda that minimi
+zes negative log likelihood[] 
+ []
+
+
+Underfull \vbox (badness 10000) has occurred while \output is active []
+
+ [9
+
+]
+[10] [11
+
+] [12
+
+] [13
 
 ]
 \tf@nav=\write6
@@ -1047,25 +1084,28 @@ Package rerunfilecheck Info: File `poisson-likelihood.out' has not changed.
 (rerunfilecheck)             Checksum: D41D8CD98F00B204E9800998ECF8427E;0.
  ) 
 Here is how much of TeX's memory you used:
- 21639 strings out of 476091
- 423052 string characters out of 5794081
- 1861330 words of memory out of 5000000
- 41531 multiletter control sequences out of 15000+600000
- 535475 words of font info for 54 fonts, out of 8000000 for 9000
+ 21762 strings out of 476091
+ 425403 string characters out of 5794081
+ 1863330 words of memory out of 5000000
+ 41630 multiletter control sequences out of 15000+600000
+ 536099 words of font info for 56 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 128i,13n,122p,498b,470s stack positions out of 10000i,1000n,20000p,200000b,200000s
-{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/share/texmf/fonts/enc/dv
-ips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-mathsy.enc}</usr/s
-hare/texmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/publi
-c/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmss10.pfb></usr/share/t
-exmf/fonts/type1/public/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public/lm/lm
-sso10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso8.pfb></usr/share/texmf/
-fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.
-pfb>
-Output written on poisson-likelihood.pdf (5 pages, 95956 bytes).
+ 128i,13n,122p,498b,476s stack positions out of 10000i,1000n,20000p,200000b,200000s
+{/usr/share/texmf/fonts/enc/dvips/lm/lm-rmtt.enc}{/usr/share/texmf/fonts/enc/
+dvips/lm/lm-mathex.enc}{/usr/share/texmf/fonts/enc/dvips/lm/lm-rm.enc}{/usr/sha
+re/texmf/fonts/enc/dvips/lm/lm-mathit.enc}{/usr/share/texmf/fonts/enc/dvips/lm/
+lm-mathsy.enc}</usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/te
+xmf/fonts/type1/public/lm/lmmi10.pfb></usr/share/texmf/fonts/type1/public/lm/lm
+mi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmss10.pfb></usr/share/texmf/fo
+nts/type1/public/lm/lmss8.pfb></usr/share/texmf/fonts/type1/public/lm/lmsso10.p
+fb></usr/share/texmf/fonts/type1/public/lm/lmsso8.pfb></usr/share/texmf/fonts/t
+ype1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></u
+sr/share/texmf/fonts/type1/public/lm/lmtt10.pfb></usr/share/texmf/fonts/type1/p
+ublic/lm/lmtt8.pfb>
+Output written on poisson-likelihood.pdf (13 pages, 177685 bytes).
 PDF statistics:
- 104 PDF objects out of 1000 (max. 8388607)
- 66 compressed objects within 1 object stream
- 11 named destinations out of 1000 (max. 500000)
- 91 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 186 PDF objects out of 1000 (max. 8388607)
+ 124 compressed objects within 2 object streams
+ 27 named destinations out of 1000 (max. 500000)
+ 145 words of extra memory for PDF output out of 10000 (max. 10000000)
 

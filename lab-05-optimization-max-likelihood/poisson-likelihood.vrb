@@ -1,0 +1,26 @@
+We work with the Kiefer strike duration data recorded between 1968
+  and 1976. Each of the 62 observations is a strike for which the main
+  variable of interest (dependent variable) is the duration of the
+  strike in days.  Other variables include the year of the strike and
+  an industrial production index for the year. The logic of the model is that
+  strikes will be shorter when industrial production is high because
+  firms have strong incentives to settle and get back to making
+  profits.
+
+\begin{verbatim}
+ year strike_duration       ip
+ 1968               7  0.01138
+ 1968               9  0.01138
+ 1968              13  0.01138
+ 1968              14  0.01138
+ 1968              26  0.01138
+ 1968              29  0.01138
+ 1968              52  0.01138
+ 1968             130  0.01138
+ 1969               9  0.02299
+ 1969              37  0.02299
+ 1969              41  0.02299
+ 1969              49  0.02299
+ 1969              52  0.02299
+ 1969             119  0.02299
+\end{verbatim}
