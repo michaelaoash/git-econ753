@@ -31,11 +31,40 @@
   expression easy to manipulate.
 \item It is the limiting case of a binomial process when the number of
   trials $n$ is high and the probability $p$ is low. The sole
-  parameter $\lambda = np$ is the expected count. 
+  parameter $\lambda = np$ is the expected count.
+
+
+
+  
 \item It is not surprising that $E(Y)=\lambda$.  It may be more surprising that, if it's really Poisson, also $\text{var}(Y)=\lambda$ 
 \end{itemize}
 
 \end{frame}
+
+\begin{frame}
+  \frametitle{Quick derivation of Poisson from Binomial}
+
+  \small
+
+  \[B(p,n) = P(X = k) = {n \choose k} p^k (1-p)^{n-k} = \frac{n!}{(n-k)!k!} p^k (1-p)^{n-k}  \]
+
+  \[ \lambda = np \Rightarrow p = \frac{\lambda}{n} \]
+
+  \[ = \frac{n!}{(n-k)!k!} \left(\frac{\lambda}{n}\right)^k \left(1-\frac{\lambda}{n}\right)^{n-k}  \]
+
+  \[ \lim_{n \rightarrow\infty} \frac{n!}{(n-k)!k!} \left(\frac{\lambda}{n}\right)^k \left(1-\frac{\lambda}{n}\right)^{n-k} \]
+
+  \[ =  \frac{\lambda^k}{k!}  \lim_{n \rightarrow\infty} \frac{n!}{(n-k)!} \left(\frac{1}{n^k}\right) \left(1-\frac{\lambda}{n}\right)^{n} \left(1-\frac{\lambda}{n}\right)^{-k}    =  \frac{\lambda^k}{k!}  (1) \lim_{n\rightarrow\infty} \left(1-\frac{\lambda}{n}\right)^{n} (1)  \]
+
+  \[ = \frac{\lambda^k}{k!}  e^{-\lambda} \]
+
+  
+
+  
+\end{frame}
+
+
+
 
 \begin{frame}[fragile]
   We work with the Kiefer strike duration data recorded between 1968
