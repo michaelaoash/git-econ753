@@ -16,11 +16,11 @@ with(babiesI,1/var(bwt))
 with(babiesI,sd(bwt))
 
 ## Draw a sample from the population
-bwt <- with(babiesI, sample(bwt, size=100, replace = FALSE))
+bwt_smpl <- with(babiesI, sample(bwt, size=20, replace = FALSE))
 
-(n <- length(bwt))
-(ybar <- mean(bwt))
-sd(bwt)
+(n <- length(bwt_smpl))
+(ybar <- mean(bwt_smpl))
+sd(bwt_smpl)
 
 ## Priors
 mu0 <- 110
@@ -31,7 +31,7 @@ delta0 <- 6000
 sqrt ( 1 / h0 )
 
 alpha1 <- alpha0 + n
-delta[1] <- delta0 + sum((bwt - mu0)^2)
+delta[1] <- delta0 + sum((bwt_smpl - mu0)^2)
 h[1] <- rgamma(n=1,shape=alpha1/2,rate=delta[1]/2)
 mu[1] <- rnorm(n=1,mean = (h0*mu0 + h0*n*ybar) / (h0 + h0*n), sd=sqrt ( 1 / (h0 + h0*n ) ) )
 
@@ -40,7 +40,7 @@ for(i in 2:length(mu)) {
   mu[i] <- rnorm(n=1,
                  mean = (h0*mu0 + h[i-1]*n*ybar) / (h0 + h[i-1]*n),
                  sd=sqrt ( 1 / (h0 + h[i-1] * n ) ) )
-  delta[i] = (delta0 + sum((bwt - mu[i])^2))
+  delta[i] = (delta0 + sum((bwt_smpl - mu[i])^2))
   h[i] <- rgamma(n=1,shape=alpha1/2,rate= delta[i] / 2)
 }
 

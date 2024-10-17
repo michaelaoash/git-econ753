@@ -6,7 +6,7 @@ library(haven)
 library(lmtest)
 options(scipen=1000)
 
-andong <- read_dta("sbegnew.dta")
+andong <- read_dta("lab-02-regression/sbegnew.dta")
 
 frisch_waugh_lovell <- function(df, y, x, label, control) {
     ## Frisch Waugh Lovell Partitioned Regression

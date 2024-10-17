@@ -1,5 +1,5 @@
 ## Warning: do not use tidyverse; will disrupt lag operators
-pdf(width=11,paper="USr")
+##pdf(width=11,paper="USr")
 library(ggplot2)
 library(dynlm)
 library(plyr)

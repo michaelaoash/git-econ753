@@ -1,11 +1,12 @@
 #Bayesian Linear Regression with Conjugate Priors
 rm(list = ls())
+library(tidyverse)
 library(gridExtra) #For multiple plots on a graph
 library(mvtnorm) #For a multivariate t density
 library(coda) # To process Bayes simulations
 
 #Import data ####
-cps <- haven::read_dta(file = "./chap5-cps.dta.txt")
+cps <- haven::read_dta(file = "lab-06-bayesian/chap5-cps.dta")
 #View(cps)
 #cps <- cps[1:100,] #Cut down dataset [to highlight effects of priors]
 

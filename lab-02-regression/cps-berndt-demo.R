@@ -14,6 +14,28 @@ library(Hmisc) ## For some nicely formatted summary stats
 ## width controls the column width of output
 options(scipen=1000,width=200)
 
+
+
+## Get CPI for 1978, 1985, and 2022
+fredr::fredr_set_key("2c43987fff98daa62e436c00e39f99ff")
+cpi1978  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1978-01-01"),
+             observation_end=as.Date("1978-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+cpi1985  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1985-01-01"),
+             observation_end=as.Date("1985-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+cpi2022  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("2022-01-01"),
+             observation_end=as.Date("2022-12-31"),
+             frequency="a",aggregation_method="avg")[,"value"])
+cpi <- tibble( year=c(1978,1985),  cpi=c(cpi1978,cpi1985)   )
+
+
+
+
+
+
+
+
 ## Some work with the 1978 and 1985 CPS (Berndt, Chapter 5)
 cps <- read_stata("http://courses.umass.edu/econ753/berndt/stata/chap5-cps.dta")
 
@@ -24,12 +46,16 @@ names(cps)
 ## Basic summary statistics
 summary(cps)
 
+summary(cps[,"ed"])
+
+
 cps$ed
 mean(cps$ed)
 sd(cps$ed)
 
 table(cps$ed)
 cps %>% tabyl(ed)
+cps %>% tabyl(ed,fe)
 stem(cps$ed)
 
 stem(cps$lnwage)
@@ -41,7 +67,7 @@ stem(exp(cps$lnwage), scale=2, width=125)
 mean(exp(cps$lnwage))
 sd(exp(cps$lnwage))
 
-dplyr::summarize(group_by(cps,year), mean(lnwage), sd(lnwage))
+dplyr::summarize(group_by(cps,year), mean(lnwage), sd(lnwage), mean(exp(lnwage)), sd(exp(lnwage)), exp(mean(lnwage))  )
 
 
 ## Some tabulation commands
@@ -77,23 +103,9 @@ with(cps,tapply(lnwage,list(year,as_factor(ethnic)),mean))
 
 with(cps,tapply(exp(lnwage),list(year,as_factor(ethnic)),mean))
 
-fredr::fredr_set_key("2c43987fff98daa62e436c00e39f99ff")
-
-cpi1978  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1978-01-01"),
-             observation_end=as.Date("1978-12-31"),
-             frequency="a",aggregation_method="avg")[,"value"])
-
-cpi1985  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("1985-01-01"),
-             observation_end=as.Date("1985-12-31"),
-             frequency="a",aggregation_method="avg")[,"value"])
-
-cpi2022  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_start=as.Date("2022-01-01"),
-             observation_end=as.Date("2022-12-31"),
-             frequency="a",aggregation_method="avg")[,"value"])
 
 
-
-
+cps <- left_join(cps, cpi)
 
 
 ## The "mutate" function (in the tidyverse package) takes a dataset,
@@ -102,9 +114,18 @@ cpi2022  <- as.numeric(fredr::fredr_series_observations("CPIAUCNS", observation_
 ## with "->"
 cps <- mutate(cps,
               wage = exp(lnwage),
-              rwage2022 = wage * cpi2022 / ifelse(year==1978, cpi1978, ifelse(year==1985, cpi1985, NA)),
+              rwage2022 = wage * cpi2022 / cpi,
+              rwage1985 = wage * cpi1985 / cpi,
+              lnrwage2022 = log(rwage2022),
+              lnrwage1985 = log(rwage1985),
               college = (ed >= 16)
               )
+
+dplyr::summarize(group_by(cps,year), mean(lnwage), sd(lnwage), mean(exp(lnwage)), sd(exp(lnwage)), exp(mean(lnwage))  )
+dplyr::summarize(group_by(cps,year), mean(lnrwage2022), sd(lnrwage2022), mean(exp(lnrwage2022)), sd(exp(lnrwage2022)), exp(mean(lnrwage2022))  )
+
+dplyr::summarize(group_by(cps,year), mean(lnrwage1985), sd(lnrwage1985), mean(exp(lnrwage1985)), sd(exp(lnrwage1985)), exp(mean(lnrwage1985))  )
+
 
 
 
