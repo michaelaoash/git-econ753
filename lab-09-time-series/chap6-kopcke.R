@@ -6,6 +6,7 @@ library(plyr)
 library(lmtest)
 library(reshape2)
 library(nlme)
+library(here)
 options(scipen=10000)
 
 rm(list=ls())
@@ -38,7 +39,7 @@ cochrane.orcutt <- function(mod){
 
 
 
-kopcke <- read.csv("chap6-kopcke.csv")
+kopcke <- read.csv(here("lab-09-time-series/chap6-kopcke.csv"))
 
 kopcke.dt <- as.yearqtr(paste(kopcke$rdate %/% 10, kopcke$rdate%%10),"%Y %q")
 
@@ -72,6 +73,8 @@ print(n)
 
 n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="isn"),aes(x=Year,y=value,color=variable)) + facet_wrap( ~ variable,ncol=1,scales="free" ) + geom_line()
 print(n)
+
+
 
 ## dev.new()
 
@@ -116,28 +119,56 @@ dwtest(eqn614s)
 
 
 
+lmqfd <- function(y,X,rho){
+    yqfd <- y[2:length(y)] - rho * y[1:length(y)-1]
+    Xqfd <- X[2:length(y), ] - rho * X[1:length(y)-1, ]
+    return(lm(yqfd ~ 0 + Xqfd))
+    }
+
+
+
+hildreth_lu <- function(mod){
+    rmses <- data.frame(rho=double(), rmse=double())
+    y <- model.response(model.frame(mod))
+    X <- model.matrix(mod)
+    for(rho in seq(0,1,0.01)){
+        lmqfd <- lmqfd(y,X,rho)
+        rmse <- sqrt(sum((resid(lmqfd))^2)/(length(y)-1))
+        rmses <- bind_rows(rmses, data.frame(rho,rmse))
+    }
+    rhostar <- with(rmses, rmses[rmse==min(rmse),"rho"])
+    print("rhostar is")
+    print(rhostar)
+    print(summary(lmqfd(y,X,rhostar)))
+    print(dwtest(lmqfd(y,X,rhostar)))
+    return(rmses)
+}
+
 (eqn614s_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
                     is ~ y + dplyr::lag(y) + dplyr::lag(is) ))
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane.orcutt(eqn614s_ols))
-dwtest(eqn614s_co)
+## dwtest(eqn614s_co)
 (lambda <- 1 - coef(eqn614s_co)[4])
 (mu <- coef(eqn614s_co)[2] / lambda)
 (delta <- coef(eqn614s_co)[3] / (mu * lambda) + 1)
+
+rmses <- hildreth_lu(eqn614s_ols)
+rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
 
 
 (eqn614e_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
                     ie ~ y + dplyr::lag(y) + dplyr::lag(ie) ))
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane.orcutt(eqn614e_ols))
-dwtest(eqn614e_co)
+## dwtest(eqn614e_co)
 (lambda <- 1 - coef(eqn614e_co)[4])
 (mu <- coef(eqn614e_co)[2] / lambda)
 (delta <- coef(eqn614e_co)[3] / (mu * lambda) + 1)
 
 
-
-
+rmses <- hildreth_lu(eqn614e_ols)
+rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
 
 
 ## The gls syntax does not take lag()
@@ -206,4 +237,5 @@ subset(kopcke.df1,Year>=1985.75 & Year<1987,select=c(is,kslag,Year))
 (ks86.4 <- kopcke.df1["1986 Q4","kslag"])
 (is86 <- (kopcke.df1["1986 Q1","is"] + kopcke.df1["1986 Q2","is"] + kopcke.df1["1986 Q3","is"] + kopcke.df1["1986 Q4","is"])/4 )
 (delta86 <- 1 - (ks86.4 - is86) / ks85.4)
+
 
