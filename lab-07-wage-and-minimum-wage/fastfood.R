@@ -6,7 +6,7 @@ library(lmtest)
 
 ## Warning: sheet 407 is used twice (once in NJ (1), once in PA (0) )
 
-fastfood.df  <- read_dta("ucla/fastfood.dta")
+fastfood.df  <- read_dta("lab-07-wage-and-minimum-wage/ucla/fastfood.dta")
 ## fastfood.df  <- subset(fastfood.df, status2 == 1 | status2==3)
 fastfood.df  <- mutate(fastfood.df,
                        sheet = ifelse(sheet==407 & state==1,408,sheet)  )
@@ -24,7 +24,8 @@ with(fastfood1.df, tapply(fte, state, sd, na.rm=TRUE)) / sqrt(with(fastfood1.df,
 
 fastfood1.df %>% group_by(state) %>%
     summarize(mean(fte, na.rm=TRUE),
-              sd(fte, na.rm=TRUE) / sqrt(sum(!is.na(fte), na.rm=TRUE ))
+              sd(fte, na.rm=TRUE) / sqrt(sum(!is.na(fte), na.rm=TRUE )),
+              sd(fte, na.rm=TRUE) / sqrt(sum(!is.na(fte)))
               )
 
 

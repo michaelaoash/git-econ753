@@ -5,6 +5,7 @@ library(lmtest)
 library(party)
 
 ## Read HMDA data from Stata file.
+## hmda <- read_dta("lab-08-hmda/hmda_sw.dta")
 hmda <- read_dta("hmda_sw.dta")
 
 ## Exclude applications for multifamily 
@@ -59,9 +60,10 @@ by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,ltv_high,ccred,mcred,pubrec,
 
 hmda %>% group_by(black) %>%
     select(deny,pi_rat,hse_inc,ltv_med,ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo) %>%
-    summarize(mean(deny), median(pi_rat), mean(pi_rat) )
+    summarize(mean(deny), median(pi_rat), mean(pi_rat), mean(ltv_med), mean(ltv_high))
 
 
+library(Hmisc)
 describe( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
 ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
 mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo)))
@@ -70,26 +72,31 @@ by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,
 ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
 mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, describe)
 
-stat.desc( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
-ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
-mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo)))
+## stat.desc( subset(hmda,select=c(deny,black,pi_rat,hse_inc,ltv_med,
+## ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
+## mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo)))
 
-by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,
-ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
-mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, stat.desc)
+## by(subset(hmda,select=c(deny,pi_rat,hse_inc,ltv_med,
+## ltv_high,ccred,mcred,pubrec,denpmi,selfemp,single,hischl,probunmp,
+## mcred3,mcred4,ccred3,ccred4,ccred5,ccred6,condo))  , hmda$black, stat.desc)
 
 
 ## Contingency table
 table(hmda$race,hmda$deny.f)
 
+with(hmda, table(race,deny.f))
+
 ## What is the difference between row and column percents?
 prop.table(table(hmda$race,hmda$deny.f),1)
 prop.table(table(hmda$race,hmda$deny.f),2)
+prop.table(table(hmda$race,hmda$deny.f))
 
 
 ## Use a t-test to check if the denial rates are the same for
 ## white and black
 t.test(hmda$deny ~ hmda$race )
+
+t.test(hmda$pi_rat ~ hmda$race )
 
 ## Same test with LPM regression
 hmda.1 <- lm(deny ~ race,data=hmda)

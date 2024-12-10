@@ -118,6 +118,7 @@ dplyr::summarize(group_by(cps,year), mean(lnrwage2022), sd(lnrwage2022), mean(ex
 dplyr::summarize(group_by(cps,year), mean(lnrwage1985), sd(lnrwage1985), mean(exp(lnrwage1985)), sd(exp(lnrwage1985)), exp(mean(lnrwage1985))  )
 
 
+dplyr::summarize(group_by(cps,year,fe), mean(lnwage), sd(lnwage), mean(exp(lnwage)), sd(exp(lnwage)), exp(mean(lnwage))  )
 
 
 ## Introducing ggplot(), a sophisticated graphics library included in tidyverse

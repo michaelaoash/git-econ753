@@ -1,12 +1,11 @@
-## Warning: do not use tidyverse; will disrupt lag operators
 ##pdf(width=11,paper="USr")
 library(ggplot2)
-library(dynlm)
-library(plyr)
+library(tidyverse)
 library(lmtest)
 library(reshape2)
 library(nlme)
 library(here)
+library(dynlm)
 options(scipen=10000)
 
 rm(list=ls())
@@ -53,8 +52,8 @@ kopcke.df1 <- mutate(kopcke.df0,
                      jes=je/js, ies = ie/is, ces = ce / cs,
                      ke = ld(kelag), ks=ld(kslag),kes=ke/ks,
                      ien=ie-0.15*kelag, isn=is-0.05*kslag,
+                     ien_alt=lead(kelag) - kelag, isn_alt=lead(kslag) - kslag,
                      ck= (ce*kelag + cs*kslag)/(kelag + kslag) )
-
 
 
 kopcke.z2 <- zoo(subset(kopcke.df1,select=-time),order.by=kopcke.dt)
@@ -73,6 +72,19 @@ print(n)
 
 n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="isn"),aes(x=Year,y=value,color=variable)) + facet_wrap( ~ variable,ncol=1,scales="free" ) + geom_line()
 print(n)
+
+
+n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="ien_alt"),aes(x=Year,y=value,color=variable)) + facet_wrap( ~ variable,ncol=1,scales="fixed" ) + geom_line()
+print(n)
+
+
+n <- ggplot(subset(kopcke.melt, variable=="ke" | variable=="ks"),aes(x=Year,y=value,color=variable)) + facet_wrap( ~ variable,ncol=1,scales="free" ) + geom_line()
+print(n)
+
+
+n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="ke" | variable=="ce" ),aes(x=Year,y=value,color=variable)) + facet_wrap( ~ variable,ncol=1,scales="free" ) + geom_line()
+print(n)
+
 
 
 
