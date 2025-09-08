@@ -13,6 +13,8 @@ fastfood.df  <- mutate(fastfood.df,
 
 fastfood1.df  <- mutate(fastfood.df, fte=empft + emppt/2 + nmgrs, fte2=empft2 + emppt2/2 + nmgrs2, dfte=fte2-fte)
 
+fastfood1.df %>% select(sheet, state, status2, fte, fte2, dfte) %>% arrange(state,sheet)
+
 fastfood2.df  <- mutate(fastfood1.df,
                         fte2 = ifelse(!(status2 %in% c(0,1,3)),0, fte2 ),
                         dfte = ifelse(!(status2 %in% c(0,1,3)),fte2-fte , dfte)

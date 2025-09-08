@@ -144,20 +144,26 @@ hildreth_lu <- function(mod){
     y <- model.response(model.frame(mod))
     X <- model.matrix(mod)
     for(rho in seq(0,1,0.01)){
-        lmqfd <- lmqfd(y,X,rho)
-        rmse <- sqrt(sum((resid(lmqfd))^2)/(length(y)-1))
+        lmqfd.lm <- lmqfd(y,X,rho)
+        rmse <- sqrt(sum((resid(lmqfd.lm))^2)/(length(y)-1))
         rmses <- bind_rows(rmses, data.frame(rho,rmse))
     }
     rhostar <- with(rmses, rmses[rmse==min(rmse),"rho"])
     print("rhostar is")
     print(rhostar)
-    print(summary(lmqfd(y,X,rhostar)))
+    print(summary(lmqfd.lm <<- lmqfd(y,X,rhostar)))
     print(dwtest(lmqfd(y,X,rhostar)))
     return(rmses)
 }
 
+
+
 (eqn614s_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
                     is ~ y + dplyr::lag(y) + dplyr::lag(is) ))
+(lambda <- 1 - coef(eqn614s_ols)[4])
+(mu <- coef(eqn614s_ols)[2] / lambda)
+(delta <- coef(eqn614s_ols)[3] / (mu * lambda) + 1)
+
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane.orcutt(eqn614s_ols))
 ## dwtest(eqn614s_co)
@@ -166,21 +172,94 @@ dwtest(eqn614s_ols)
 (delta <- coef(eqn614s_co)[3] / (mu * lambda) + 1)
 
 rmses <- hildreth_lu(eqn614s_ols)
+summary(lmqfd.lm)
+(lambda <- 1 - coef(lmqfd.lm)[4])
+(mu <- coef(lmqfd.lm)[2] / lambda)
+(delta <- coef(lmqfd.lm)[3] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
+
+
+## Try without constant
+(eqn614s_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
+                    is ~ 0 + y + dplyr::lag(y) + dplyr::lag(is) ))
+(lambda <- 1 - coef(eqn614s_ols)[3])
+(mu <- coef(eqn614s_ols)[1] / lambda)
+(delta <- coef(eqn614s_ols)[2] / (mu * lambda) + 1)
+dwtest(eqn614s_ols)
+(eqn614s_co  <- cochrane.orcutt(eqn614s_ols))
+## dwtest(eqn614s_co)
+(lambda <- 1 - coef(eqn614s_co)[3])
+(mu <- coef(eqn614s_co)[1] / lambda)
+(delta <- coef(eqn614s_co)[2] / (mu * lambda) + 1)
+rmses <- hildreth_lu(eqn614s_ols)
+summary(lmqfd.lm)
+(lambda <- 1 - coef(lmqfd.lm)[3])
+(mu <- coef(lmqfd.lm)[1] / lambda)
+(delta <- coef(lmqfd.lm)[2] / (mu * lambda) + 1)
+rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
+
+
+
+
 
 
 (eqn614e_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
                     ie ~ y + dplyr::lag(y) + dplyr::lag(ie) ))
+(lambda <- 1 - coef(eqn614e_ols)[4])
+(mu <- coef(eqn614e_ols)[2] / lambda)
+(delta <- coef(eqn614e_ols)[3] / (mu * lambda) + 1)
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane.orcutt(eqn614e_ols))
 ## dwtest(eqn614e_co)
 (lambda <- 1 - coef(eqn614e_co)[4])
 (mu <- coef(eqn614e_co)[2] / lambda)
 (delta <- coef(eqn614e_co)[3] / (mu * lambda) + 1)
+rmses <- hildreth_lu(eqn614e_ols)
+summary(lmqfd.lm)
+(lambda <- 1 - coef(lmqfd.lm)[4])
+(mu <- coef(lmqfd.lm)[2] / lambda)
+(delta <- coef(lmqfd.lm)[3] / (mu * lambda) + 1)
+rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
 
+
+
+
+## Try without constant
+(eqn614e_ols  <- lm(data=dplyr::filter(kopcke.df1, Year>1956),
+                    ie ~ 0+ y + dplyr::lag(y) + dplyr::lag(ie) ))
+(lambda <- 1 - coef(eqn614e_ols)[3])
+(mu <- coef(eqn614e_ols)[1] / lambda)
+(delta <- coef(eqn614e_ols)[2] / (mu * lambda) + 1)
+dwtest(eqn614e_ols)
+(eqn614e_co  <- cochrane.orcutt(eqn614e_ols))
+## dwtest(eqn614e_co)
+(lambda <- 1 - coef(eqn614e_co)[3])
+(mu <- coef(eqn614e_co)[1] / lambda)
+(delta <- coef(eqn614e_co)[2] / (mu * lambda) + 1)
 
 rmses <- hildreth_lu(eqn614e_ols)
+summary(lmqfd.lm)
+(lambda <- 1 - coef(lmqfd.lm)[3])
+(mu <- coef(lmqfd.lm)[1] / lambda)
+(delta <- coef(lmqfd.lm)[2] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x=rho,y=rmse)) + geom_line() 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 ## The gls syntax does not take lag()
@@ -189,21 +268,21 @@ summary(gls(ie ~ (y) + kelag , data=kopcke.z2, correlation=corAR1()))
 
 ## Be very careful with signs in the lag operator.  Here it works on a zoo object
 ## Just to demonstrate that we are doing lags correctly
-with(kopcke.z2,arima(ie, xreg=cbind(lag(y,-1:-3),kelag), order=c(0,0,0)))  ## Right 
+with(kopcke.z2,arima(ie, xreg=cbind(stats::lag(y,-1:-3),kelag), order=c(0,0,0)))  ## Right 
 summary(dynlm(data=kopcke.z2, ie ~ L(y,1:3) + kelag)) ## Right
 
-with(kopcke.z2,arima(ie, xreg=cbind(lag(y,-1),kelag), order=c(1,0,0)))  ## Right
+with(kopcke.z2,arima(ie, xreg=cbind(stats::lag(y,-1),kelag), order=c(1,0,0)))  ## Right
 
-with(kopcke.z2,arima(ie, xreg=cbind(lag(y,-1:-3),kelag), order=c(1,0,0)))  ## Right
+with(kopcke.z2,arima(ie, xreg=cbind(stats::lag(y,-1:-3),kelag), order=c(1,0,0)))  ## Right
 
-with(window(kopcke.z2,start="1954 Q1",end="1977 Q4"),arima(ie, xreg=cbind(lag(y,-1:-3),kelag), order=c(1,0,0)))  ## Right
+with(window(kopcke.z2,start="1954 Q1",end="1977 Q4"),arima(ie, xreg=cbind(stats::lag(y,-1:-3),kelag), order=c(1,0,0)))  ## Right
 
 ## Cash flow model
-with(window(kopcke.z2,start="1958 Q1",end="1973 Q3"),arima( ie , xreg=cbind(lag(f/je,-1:-3),kelag), order=c(1,0,0)))
-with(window(kopcke.z2,start="1956 Q1",end="1979 Q4"),arima( ie , xreg=cbind(lag(f/je,-1:-7),kelag), order=c(1,0,0)))
+with(window(kopcke.z2,start="1958 Q1",end="1973 Q3"),arima( ie , xreg=cbind(stats::lag(f/je,-1:-3),kelag), order=c(1,0,0)))
+with(window(kopcke.z2,start="1956 Q1",end="1979 Q4"),arima( ie , xreg=cbind(stats::lag(f/je,-1:-7),kelag), order=c(1,0,0)))
 ## To get 1956Q1-1979Q4 with seven lags, need to include back to 1954Q2
-(flow.ie.iii <- with((window(kopcke.z2,start="1954 Q2",end="1979 Q4")),arima( ie , xreg=cbind(lag(f/je,0:-7),kelag), order=c(1,0,0))))
-(flow.is.iii <- with((window(kopcke.z2,start="1954 Q2",end="1979 Q4")),arima( is , xreg=cbind(lag(f/js,0:-7),kelag), order=c(1,0,0))))
+(flow.ie.iii <- with((window(kopcke.z2,start="1954 Q2",end="1979 Q4")),arima( ie , xreg=cbind(stats::lag(f/je,0:-7),kelag), order=c(1,0,0))))
+(flow.is.iii <- with((window(kopcke.z2,start="1954 Q2",end="1979 Q4")),arima( is , xreg=cbind(stats::lag(f/js,0:-7),kelag), order=c(1,0,0))))
 
 
 ## With contemporaneous y
