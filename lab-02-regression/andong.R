@@ -1,5 +1,6 @@
 ## ZAP
 ## Based on Zhu, Ash, and Pollin (2006) https://doi.org/10.1080/0269217032000148645
+## Replication of Levine and Zervos (1998)
 ## Frisch Waugh Lovell partitioned regression model
 library(tidyverse)
 library(haven)
@@ -7,6 +8,25 @@ library(lmtest)
 options(scipen=1000)
 
 andong <- read_dta("lab-02-regression/sbegnew.dta")
+
+## Data dictionary for "Stock Markets, Banks, and Economic Growth"
+## GYP     Average Annual GDP Growth Rate 1976-1993
+## LRGDP   Initial Output
+## LSEC    Secondary-School Enrollment
+## REVCOUP Revolutions and Coups
+## GOVI    Initial value of Government
+## PII     Initial value of Inflation
+## BMPI    Initial value of Black Market Premium
+## BANKI   Initial value of Bank Credit
+## TORI    Initial Turnover Ratio
+## TVTI    Initial Value Traded
+## MCAPI   Initial Capitalization
+## VOLI    Initial Volatility
+## CAPM    CAPM Integration
+## APM     APT Integration.
+## Variables without the subscript "I" indicate that the value is averaged over the sample period, instead of an initial value, unless otherwise noted.
+
+
 
 frisch_waugh_lovell <- function(df, y, x, label, control) {
     ## Frisch Waugh Lovell Partitioned Regression
