@@ -21,28 +21,33 @@ kiefer <- merge(rbind(df68, df69, df70, df71, df72, df73, df74, df75, df76),rlip
 ## One parameter Poisson (no covariates)
 
 with(kiefer, mean(strike_duration))
+with(kiefer, var(strike_duration)) ## really rejects poisson (mean != var)
 with(kiefer, log(mean(strike_duration)))
-with(kiefer, var(strike_duration))
 
-summary(constant.glm <- glm(strike_duration ~ 1  , data=kiefer, family=poisson))
+## Run using generalized linear model glm() function with packaged poisson
+summary(constant.glm <- glm(strike_duration ~ 1, data = kiefer, family = poisson))
 logLik(constant.glm)
-predict(constant.glm,type="response")
+predict(constant.glm, type = "response")
 
 ## Poisson regression models log(lambda) (not lambda)
 ## To recover lambda, exponentiate the estimate of log(lambda)
 
 ## log(lambda) = XB, in this case log(lambda) = B We write the
 ## expression for the log likelihood (and must remember to set the optimizer to maximize)
+(y <- kiefer$strike_duration)
+(cons <- rep(1, length(kiefer$strike_duration)))
+(x <- kiefer$ip)
+(t <- kiefer$year - 1968)
+
+
 poissonll <- function(beta) {
-    y <- kiefer$strike_duration
-    cons <- rep(1, length(kiefer$strike_duration))
-    sum( -exp(beta*cons) + y * beta * cons )
+    sum( -exp(beta*cons)  +  y*beta*cons )
 }
 
 ## Use optimizer to find beta, the log lambda that maximizes log likelihood  (try two different optimizers)
-(poissonll.opt  <- optimize( poissonll, interval=c(0,5), maximum=TRUE  ))
-(poissonll.opt  <- optim( par=1,  poissonll, control = list(fnscale=-1), hessian=TRUE ))
-## Note that the parameter estimates match glm but the log likelihood
+(poissonll.opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
+(poissonll.opt  <- optim(par=1,  poissonll, control = list(fnscale=-1), hessian=TRUE))
+## Note that the parameter estimates match glm but the maximized log likelihood
 ## itself does not match glm because the ln(y!) component has been
 ## excluded
 
@@ -64,14 +69,12 @@ lnfac  <- function(yi) {
 
 ## Log likelihood function including the formal ln(Y!) stuff.  Needed to match the glm results for the value of the objective
 poissonll <- function(beta) {
-    y <- kiefer$strike_duration
-    cons <- rep(1, length(kiefer$strike_duration))
     sum( -exp(beta*cons) + y * beta * cons - sapply(y, lnfac))
 }
 
 ## Use optimizer to find beta, the log lambda that maximizes log likelihood  (try two different optimizers)
-(poissonll.opt  <- optimize( poissonll, interval=c(0,5), maximum=TRUE  ))
-(poissonll.opt  <- optim( par=1,  poissonll, control=list(fnscale=-1) ))
+(poissonll.opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
+(poissonll.opt  <- optim(par=1, poissonll, control=list(fnscale=-1)))
 ## Lambda
 exp(poissonll.opt$par)
 
@@ -82,22 +85,19 @@ poissonll(log(40))
 poissonll(poissonll.opt$par)
 poissonll(log(49))
 
-## Likelihood 
+## Likelihood
 exp(poissonll.opt$value)
 
 
 ## Two parameter Poisson (constant and one covariate)
 ## log(lambda) = XB
-summary(kiefer2.glm <- glm(strike_duration ~ ip  , data=kiefer, family=poisson))
+summary(kiefer2.glm <- glm(strike_duration ~ ip, data = kiefer, family = poisson))
 ## Recover the expected arrival rate in the bivarate case
 predict(kiefer2.glm,type="response")
 ## Log likelihood function for two-parameter model
 poissonll2 <- function(beta) {
-    y <- kiefer$strike_duration
-    cons <- rep(1, length(kiefer$strike_duration))
-    x <- kiefer$ip
-    sum(  -exp(beta[1]*cons + beta[2] * x) + y * (beta[1]*cons + beta[2] * x) )
-    }
+    sum(-exp(beta[1]*cons + beta[2]*x) + y*(beta[1]*cons + beta[2] * x) )
+}
 (poissonll2.opt  <- optim(par=c(3,-7),  poissonll2, control=list(fnscale=-1), hessian=TRUE ))
 
 rlip$predicted_duration = exp(poissonll2.opt$par[1] + poissonll2.opt$par[2]*rlip$ip)
@@ -110,16 +110,11 @@ with(rlip, lines(year, predicted_duration))
 sqrt(diag(-solve(poissonll2.opt$hessian)))
 
 
-
 ## Three parameter Poisson (constant and two covariates)
 ## log(lambda) = XB
 summary(kiefer3.glm <- glm(strike_duration ~ ip + I(year-1968) , data=kiefer, family=poisson))
 ## Log likelihood function for three-parameter model
 poissonll3 <- function(beta) {
-    y <- kiefer$strike_duration
-    cons <- rep(1, length(kiefer$strike_duration))
-    x <- kiefer$ip
-    t <- kiefer$year - 1968
     sum(  -exp(beta[1]*cons + beta[2]*x + beta[3]*t) + y * (beta[1]*cons + beta[2]*x + beta[3]*t) )
     }
 (poissonll3.opt  <- optim(par=c(3,-7,-0.10),  poissonll3, control=list(fnscale=-1), hessian=TRUE ))
