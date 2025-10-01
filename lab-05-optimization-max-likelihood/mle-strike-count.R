@@ -1,4 +1,6 @@
-## Analyze strike duration data (Exercise from Greene)
+## Analyze strike count data (Exercise from Greene)
+## These are June only data.  See readme.txt
+library(tidyverse)
 
 ## Real industrial production
 rlip <- data.frame(year=1968:1976,
@@ -17,24 +19,31 @@ df76 <- data.frame(year=1976, strike_duration=c(2,12,12,21,21,27,38,42,117)     
 
 kiefer <- merge(rbind(df68, df69, df70, df71, df72, df73, df74, df75, df76),rlip)
 
+kiefer <- kiefer %>%
+    group_by(year) %>%
+    summarize(strike_count = n(), ip = mean(ip))
+
+
 ## One parameter Poisson (no covariates)
 
-with(kiefer, mean(strike_duration))
-with(kiefer, var(strike_duration)) ## really rejects poisson (mean != var)
-with(kiefer, log(mean(strike_duration)))
+with(kiefer, mean(strike_count))
+with(kiefer, var(strike_count)) ## really rejects poisson (mean != var)
+with(kiefer, log(mean(strike_count)))
 
 ## Run using generalized linear model glm() function with packaged poisson
-summary(constant.glm <- glm(strike_duration ~ 1, data = kiefer, family = poisson))
-logLik(constant.glm)
-predict(constant.glm, type = "response")
+summary(constant_glm <- glm(strike_count ~ 1, data = kiefer, family = poisson))
+logLik(constant_glm)
+predict(constant_glm, type="link")
+predict(constant_glm, type = "response")
+
 
 ## Poisson regression models log(lambda) (not lambda)
 ## To recover lambda, exponentiate the estimate of log(lambda)
 
 ## log(lambda) = X beta, in this case log(lambda) = beta We write the
 ## expression for the log likelihood (and must remember to set the optimizer to maximize)
-(y <- kiefer$strike_duration)
-(cons <- rep(1, length(kiefer$strike_duration)))
+(y <- kiefer$strike_count)
+(cons <- rep(1, length(kiefer$strike_count)))
 (x <- kiefer$ip)
 (t <- kiefer$year - 1968)
 
@@ -44,18 +53,18 @@ poissonll <- function(beta) {
 }
 
 ## Use optimizer to find beta, the log lambda that maximizes log likelihood  (try two different optimizers)
-(poissonll.opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
-(poissonll.opt  <- optim(par=1,  poissonll, control = list(fnscale=-1), hessian=TRUE))
+(poissonll_opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
+(poissonll_opt  <- optim(par=1,  poissonll, control = list(fnscale=-1), hessian=TRUE))
 ## Note that the parameter estimates match glm but the maximized log likelihood
 ## itself does not match glm because the ln(y!) component has been
 ## excluded
 
 
 ## Beta_hat and s.e. beta_hat
-(poissonll.opt$par)
-sqrt(-solve(poissonll.opt$hessian))
+(poissonll_opt$par)
+sqrt(-solve(poissonll_opt$hessian))
 ## Lambda_hat = exp(beta_hat)
-exp(poissonll.opt$par)
+exp(poissonll_opt$par)
 
 
 ## Computes ln(Y!) which is a formal piece of the ln L function (that does not depend on parameters)
@@ -72,52 +81,53 @@ poissonll <- function(beta) {
 }
 
 ## Use optimizer to find beta, the log lambda that maximizes log likelihood  (try two different optimizers)
-(poissonll.opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
-(poissonll.opt  <- optim(par=1, poissonll, control=list(fnscale=-1)))
+(poissonll_opt  <- optimize(poissonll, interval=c(0,5), maximum=TRUE))
+(poissonll_opt  <- optim(par=1, poissonll, control=list(fnscale=-1)))
 ## Lambda
-exp(poissonll.opt$par)
+exp(poissonll_opt$par)
 
 ## Log likelihood
-poissonll.opt$value
+poissonll_opt$value
 ## The MLE outperforms alternatives
-poissonll(log(40))
-poissonll(poissonll.opt$par)
-poissonll(log(49))
+poissonll(log(5))
+poissonll(poissonll_opt$par)
+poissonll(log(9))
 
 ## Likelihood
-exp(poissonll.opt$value)
+exp(poissonll_opt$value)
 
 
 ## Two parameter Poisson (constant and one covariate)
 ## log(lambda) = XB
-summary(kiefer2.glm <- glm(strike_duration ~ ip, data = kiefer, family = poisson))
+summary(kiefer2_glm <- glm(strike_count ~ ip, data = kiefer, family = poisson))
 ## Recover the expected arrival rate in the bivarate case
-predict(kiefer2.glm,type="response")
+predict(kiefer2_glm,type="link")
+predict(kiefer2_glm,type="response")
 ## Log likelihood function for two-parameter model
 poissonll2 <- function(beta) {
     sum(-exp(beta[1]*cons + beta[2]*x) + y*(beta[1]*cons + beta[2] * x))
 }
-(poissonll2.opt  <- optim(par=c(3,-7),  poissonll2, control=list(fnscale=-1), hessian=TRUE))
+(poissonll2_opt  <- optim(par=c(3,-7),  poissonll2, control=list(fnscale=-1), hessian=TRUE))
 
-rlip$predicted_duration = exp(poissonll2.opt$par[1] + poissonll2.opt$par[2]*rlip$ip)
-with(rlip, plot(year, predicted_duration))
-with(rlip, lines(year, predicted_duration))
+rlip$predicted_count <- exp(poissonll2_opt$par[1] + poissonll2_opt$par[2] * rlip$ip)
+with(rlip, plot(year, predicted_count))
+with(rlip, lines(year, predicted_count))
 
 
 ## Beta_hat and s.e. beta_hat
-(poissonll2.opt$par)
-sqrt(diag(-solve(poissonll2.opt$hessian)))
+(poissonll2_opt$par)
+sqrt(diag(-solve(poissonll2_opt$hessian)))
 
 
 ## Three parameter Poisson (constant and two covariates)
 ## log(lambda) = XB
-summary(kiefer3.glm <- glm(strike_duration ~ ip + I(year-1968), data = kiefer, family = poisson))
+summary(kiefer3_glm <- glm(strike_count ~ ip + I(year-1968), data = kiefer, family = poisson))
 ## Log likelihood function for three-parameter model
 poissonll3 <- function(beta) {
     sum(-exp(beta[1]*cons + beta[2]*x + beta[3]*t) + y * (beta[1]*cons + beta[2]*x + beta[3]*t))
     }
-(poissonll3.opt  <- optim(par=c(3,-7,-0.10),  poissonll3, control=list(fnscale=-1), hessian=TRUE))
+(poissonll3_opt  <- optim(par=c(3,-7,-0.10),  poissonll3, control=list(fnscale=-1), hessian=TRUE))
 
 ## Beta_hat and s.e. beta_hat
-(poissonll3.opt$par)
-sqrt(diag(-solve(poissonll3.opt$hessian)))
+(poissonll3_opt$par)
+sqrt(diag(-solve(poissonll3_opt$hessian)))

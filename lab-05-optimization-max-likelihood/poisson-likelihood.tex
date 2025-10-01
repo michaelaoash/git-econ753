@@ -33,8 +33,6 @@
   trials $n$ is high and the probability $p$ is low. The sole
   parameter $\lambda = np$ is the expected count.
 
-
-
   
 \item It is not surprising that $E(Y)=\lambda$.  It may be more surprising that, if it's really Poisson, also $\text{var}(Y)=\lambda$ 
 \end{itemize}
@@ -58,42 +56,57 @@
 
   \[ = \frac{\lambda^k}{k!}  e^{-\lambda} \]
 
-  
-
-  
 \end{frame}
 
 
 
 
 \begin{frame}[fragile]
-  We work with the Kiefer strike duration data recorded between 1968
-  and 1976. Each of the 62 observations is a strike for which the main
-  variable of interest (dependent variable) is the duration of the
-  strike in days.  Other variables include the year of the strike and
-  an industrial production index for the year. The logic of the model is that
-  strikes will be shorter when industrial production is high because
-  firms have strong incentives to settle and get back to making
-  profits.
+  We work with the Kennan strike data recorded between 1968 and
+  1976. Each of the observations is a strike which includes the
+  duration of the strike in days.  Other variables include the year of
+  the strike and an industrial production index for the month and
+  year. The logic of the duration model is that strikes will be
+  shorter when industrial production is high because firms have strong
+  incentives to settle and get back to making profits.
 
 \begin{verbatim}
- year strike_duration       ip
- 1968               7  0.01138
- 1968               9  0.01138
- 1968              13  0.01138
- 1968              14  0.01138
- 1968              26  0.01138
- 1968              29  0.01138
- 1968              52  0.01138
- 1968             130  0.01138
- 1969               9  0.02299
- 1969              37  0.02299
- 1969              41  0.02299
- 1969              49  0.02299
- 1969              52  0.02299
- 1969             119  0.02299
+    yrmo duration      IP
+    6801        5  0.0152
+    6801       23  0.0152
+    6801       34  0.0152
+    6801       52  0.0152
+    6801       52  0.0152
+     ...
+    7507        8 -0.0866
+    7507       13 -0.0866
+    7508        2 -0.0628
+    7508        6 -0.0628
+    7508       37 -0.0628
 \end{verbatim}
 \end{frame}
+
+\begin{frame}[fragile]
+  We will analyze the monthly \emph{count} of strikes. 
+
+\begin{verbatim}
+     yrmo strike_count   industrial_production
+     6801            5             0.0152 
+     6802            4             0.00997
+     6803            6             0.0117 
+     6804           16             0.00473
+     6805            5             0.0128 
+     6806            8             0.0114 
+     ...                                  
+     7607            6            -0.00157
+     7608            3             0.00134
+     7609            4            -0.0128 
+     7610            6            -0.0154 
+     7611            2            -0.00703
+     7612            3            -0.00003
+\end{verbatim}
+\end{frame}
+
 
 
 \begin{frame}
@@ -240,7 +253,7 @@ Zoom back out (there are $n$ of these expressions to add up):
 \end{frame}
 
 \begin{frame}
-  In the code below, \texttt{y} is the full vector of strike durations $y = {7, 9, 13, 14, 26,\ldots}$, \texttt{cons} is the same length and made of 1's.  The last term, which is returned by the function, is the log likelihood, for each observation $-e^{\beta} + y_i \beta$ summed over all observations, or $-ne^{\beta} + \sum y_i \beta $.
+  In the code below, \texttt{y} is the full vector of strike durations $y = {5, 4, 6, 16, 5,\ldots}$, \texttt{cons} is the same length and made of 1's.  The last term, which is returned by the function, is the log likelihood, for each observation $-e^{\beta} + y_i \beta$ summed over all observations, or $-ne^{\beta} + \sum y_i \beta $.
 \end{frame}  
 
 \begin{verbatim}
