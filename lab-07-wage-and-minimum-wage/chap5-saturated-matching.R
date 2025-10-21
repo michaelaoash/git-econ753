@@ -60,48 +60,8 @@ with(cps85.diff2, sum(  diff_lnwage * (`0_N`+`1_N`  ) / sum( `0_N` + `1_N` )))
 
 
 
-## Matching with full saturation
+## Assignment: repeat for 1978
 cps78 <- subset(chap5.cps,year==1978)
-
-## This creates the demographic groups by education, experience, nonwhite, and hispanicity
-## The formatC business adds leading zeros to the single-digit values so they sort properly
-cps78 <- within(cps78,
-                dem <- paste(formatC(ed, width = 2, format = "d", flag = "0"),
-                             formatC(ex, width = 2, format = "d", flag = "0"),
-                             nonwh,hisp))
-
-## Here is a straightforward way to get the needed elements
-dem.fe.lnwage <- with(cps78, tapply(lnwage,list(dem,fe),mean))
-dem.fe.counts <- with(cps78, tapply(lnwage,list(dem,fe),length))
-
-## This is equivalent to the collapse command 
-cps78.sum <- ddply(cps78, .(dem,fe), summarize, lnwage=mean(lnwage), N = length(lnwage))
-## Note that the demographic grouping could all be handled here:
-## cps78.sum <- ddply(cps78, .(ed,ex,nonwh,hisp,fe), summarize, lnwage=mean(lnwage), N = length(lnwage))
-
-## This reshapes the data from long dem,fe to wide dem x fe
-## http://www.jstatsoft.org/v21/i12/paper
-cps78.melt <- melt(cps78.sum, id=c("dem","fe"), measured=c("lnwage","N")  )
-cps78.cast <- cast(cps78.melt, dem ~ fe + variable)
-
-## This differences mean wage by sex 
-cps78.diff <- within(cps78.cast, diff_lnwage <- `1_lnwage` - `0_lnwage`)
-
-## Mean difference weighted by number of women in the demographic cell
-with(cps78.diff, weighted.mean(diff_lnwage, `1_N`,na.rm=TRUE))
-
-## To get the difference the old-fashioned way, need to be careful about the denominator
-## I.e., only include cells that have a difference.
-with(cps78.diff, sum(  diff_lnwage * `1_N` , na.rm=TRUE ) / sum( ifelse(is.na(diff_lnwage),NA,1)*`1_N`,na.rm=TRUE))
-
-## Or delete the rows with empty difference (i.e., no men or no women)
-cps78.diff2 <- subset(cps78.diff, !is.na(diff_lnwage))
-with(cps78.diff2, sum(  diff_lnwage * `1_N`  ) / sum( `1_N`))
-
-## Alternative weightings
-with(cps78.diff2, sum(  diff_lnwage * `0_N`  ) / sum( `0_N`))
-with(cps78.diff2, sum(  diff_lnwage * (`0_N`+`1_N`  ) / sum( `0_N` + `1_N` )))
-
 
 
 
