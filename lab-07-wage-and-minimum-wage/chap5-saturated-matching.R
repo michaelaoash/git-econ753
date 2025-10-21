@@ -2,7 +2,7 @@ library(foreign) ## To read Stata datasets
 library(car) ## for testing linear combinations with linearHypothesis()
 library(lmtest) ## For robust standard errors
 library(sandwich) ## For robust standard errors
-library(dplyr)
+library(tidyverse)
 library(reshape2)
 
 options(scipen=10000)
@@ -26,19 +26,18 @@ cps85 <- mutate(cps85,
 dem.fe.lnwage <- with(cps85, tapply(lnwage,list(dem,fe),mean))
 dem.fe.counts <- with(cps85, tapply(lnwage,list(dem,fe),length))
 
-## This is equivalent to the collapse command 
-cps85.sum <- ddply(cps85, .(dem,fe), summarize, lnwage=mean(lnwage), N = length(lnwage))
-## Note that the demographic grouping could all be handled here:
-## cps85.sum <- ddply(cps85, .(ed,ex,nonwh,hisp,fe), summarize, lnwage=mean(lnwage), N = length(lnwage))
+## This is equivalent to the Stata collapse command
+cps85.sum <- cps85 %>% group_by(dem, fe) %>% summarize(lnwage=mean(lnwage), N = n())
+## Note that the demographic grouping could all be handled here
 
-ddply(subset(chap5.cps),.(occupation,year),summarize,lnwage=mean(lnwage),ed=mean(ed))
 
+chap5.cps %>% group_by(occupation, year) %>% summarize(lnwage=mean(lnwage), ed = mean(ed), N = n())
 
 
 ## This reshapes the data from long dem,fe to wide dem x fe
 ## http://www.jstatsoft.org/v21/i12/paper
 cps85.melt <- melt(cps85.sum, id=c("dem","fe"), measured=c("lnwage","N")  )
-cps85.cast <- cast(cps85.melt, dem ~ fe + variable)
+cps85.cast <- dcast(cps85.melt, dem ~ fe + variable)
 
 ## This differences mean wage by sex 
 cps85.diff <- within(cps85.cast, diff_lnwage <- `1_lnwage` - `0_lnwage`)

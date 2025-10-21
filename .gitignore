@@ -5,6 +5,15 @@ lab-04-visualization/morg88.dta
 # Emacs backup files
 *~
 
+# Various latex files
+*.nav
+*.aux
+*.vrb
+*.toc
+*.snm
+*.out
+*.log
+
 # Old versions
 old/
 lab-02-io-tables/old/

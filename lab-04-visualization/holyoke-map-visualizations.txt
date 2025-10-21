@@ -1,0 +1,4 @@
+See my repo
+https://github.com/michaelaoash/ELEVATE-census-egrid-intro
+Specifically see
+https://github.com/michaelaoash/ELEVATE-census-egrid-intro/tree/master/tidycensus-demo/holyoke
