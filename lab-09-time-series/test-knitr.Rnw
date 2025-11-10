@@ -13,8 +13,8 @@ library(knitr)
 library(ggplot2)
 library(stargazer)
 # set global chunk options
-opts_chunk$set(fig.path='figure/minimal-', fig.align='center', fig.show='hold')
-options(formatR.arrow=TRUE,width=60)
+opts_chunk$set(fig.path = 'figure/minimal-', fig.align = 'center', fig.show = 'hold')
+options(formatR.arrow = TRUE, width = 60)
 @
 
 \title{My knitr demo}
@@ -26,11 +26,11 @@ get started with some boring random numbers:
 
 <<boring-random>>=
 set.seed(1121)
-(x=rnorm(20))
-(xbar  <- mean(x)); (xvar  <- var(x))
+(x <- rnorm(20))
+(xbar <- mean(x)); (xvar <- var(x))
 @
 
-The first element $X_1$ of \texttt{x} is \Sexpr{x[1]}. Rounded to two decimal places, the mean is \Sexpr{format(xbar,digits=2)} and the variance is \Sexpr{format(xvar,digits=2)}.
+The first element $X_1$ of \texttt{x} is \Sexpr{x[1]}. Rounded to two decimal places, the mean is \Sexpr{format(xbar,digits=2)} and the variance is \Sexpr{format(xvar,digits = 2)}.
 
 Here are the annotated results of a couple of coin tosses (at this
 point we hand random-number generation back to the system:
@@ -39,23 +39,23 @@ set.seed(Sys.time())
 @ 
 
 <<coin-toss, include=FALSE>>=
-coin1  <- ifelse(runif(1)>0.5,"heads","tails")
+coin1  <- ifelse(runif(1) > 0.5, "heads", "tails")
 @ 
 
 The coin comes up \Sexpr{coin1}.
 
 <<coin-toss-2, include=FALSE>>=
-coin2  <- ifelse(runif(1)>0.5,"heads","tails")
+coin2  <- ifelse(runif(1) > 0.5, "heads", "tails")
 @ 
 
-Here is the result of another coin toss.  The coin comes up \Sexpr{coin2}\Sexpr{ifelse(coin1==coin2," again"," instead")}.
+Here is the result of another coin toss.  The coin comes up \Sexpr{coin2}\Sexpr{ifelse(coin1 == coin2," again"," instead")}.
 
 A boring plot in ggplot can be see in Figure~\ref{fig:boring}.
 
 \begin{figure}
   \caption{A boring figure}
   \label{fig:boring}
-<<boring-plots, fig.width=4, fig.height=4, out.width='.6\\linewidth', include=TRUE, echo=FALSE>>=
+<<boring-plots, fig.width = 4, fig.height = 4, out.width = '.6\\linewidth', include = TRUE, echo = FALSE>>=
 ## a plot
 ggplot(cars, aes(x=speed,y=dist) ) + geom_point()
 @
@@ -64,16 +64,16 @@ ggplot(cars, aes(x=speed,y=dist) ) + geom_point()
 Summary statistics are in Table~\ref{tab:summary}.
 
 <<results='asis'>>=
-stargazer(cars, title="Summary statistics", label="tab:summary")
+stargazer(cars, title = "Summary statistics", label= "tab:summary")
 @
 
 And the regression results are in Table~\ref{tab:regression}
 
 
 <<some-regressions,echo=FALSE>>=
-model1  <- lm(dist ~ speed, data=cars)
-model2  <- lm(dist ~ speed + I(speed^2), data=cars)
-model3  <- lm(dist ~ speed + I(speed^2) + I(speed^3), data=cars)
+model1  <- lm(dist ~ speed, data = cars)
+model2  <- lm(dist ~ speed + I(speed * speed), data = cars)
+model3  <- lm(dist ~ speed + I(speed^2) + I(speed^3), data = cars)
 @ 
 
 <<results='asis'>>=
@@ -82,7 +82,7 @@ stargazer(model1, model2, model3, title="Regression results", label="tab:regress
 
 <<change-coefficient-names,echo=FALSE>>=
 names(model1$coefficients)[names(model1$coefficients) == "I(speed^2)"] <- "Speed-squared"
-names(model2$coefficients)[names(model2$coefficients) == "I(speed^2)"] <- "Speed-squared"
+names(model2$coefficients)[names(model2$coefficients) == "I(speed * speed)"] <- "Speed-squared"
 names(model3$coefficients)[names(model3$coefficients) == "I(speed^2)"] <- "Speed-squared"
 names(model1$coefficients)[names(model1$coefficients) == "I(speed^3)"] <- "Speed-cubed"
 names(model2$coefficients)[names(model2$coefficients) == "I(speed^3)"] <- "Speed-cubed"
@@ -94,12 +94,7 @@ stargazer(model1, model2, model3, title="Regression results with new names", lab
 @
 
 
-Do the chunks work? You should be able to compile the \LaTeX{} document.
-
-
+Do the R code chunks work? You should be able to compile the \LaTeX{} document.
 
 
 \end{document}
-
-
-

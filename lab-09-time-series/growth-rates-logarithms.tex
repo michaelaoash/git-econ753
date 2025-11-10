@@ -1,4 +1,54 @@
-\documentclass{beamer} \usepackage[utf8]{inputenc}  \usepackage{url} \usepackage{pgfpages}
+\documentclass{beamer}\usepackage[]{graphicx}\usepackage[]{xcolor}
+% maxwidth is the original width if it is less than linewidth
+% otherwise use linewidth (to make sure the graphics do not exceed the margin)
+\makeatletter
+\def\maxwidth{ %
+  \ifdim\Gin@nat@width>\linewidth
+    \linewidth
+  \else
+    \Gin@nat@width
+  \fi
+}
+\makeatother
+
+\definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
+\newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
+\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
+\newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
+\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
+\newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
+\newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
+\newcommand{\hlkwd}[1]{\textcolor[rgb]{0.737,0.353,0.396}{\textbf{#1}}}%
+\let\hlipl\hlkwb
+
+\usepackage{framed}
+\makeatletter
+\newenvironment{kframe}{%
+ \def\at@end@of@kframe{}%
+ \ifinner\ifhmode%
+  \def\at@end@of@kframe{\end{minipage}}%
+  \begin{minipage}{\columnwidth}%
+ \fi\fi%
+ \def\FrameCommand##1{\hskip\@totalleftmargin \hskip-\fboxsep
+ \colorbox{shadecolor}{##1}\hskip-\fboxsep
+     % There is no \\@totalrightmargin, so:
+     \hskip-\linewidth \hskip-\@totalleftmargin \hskip\columnwidth}%
+ \MakeFramed {\advance\hsize-\width
+   \@totalleftmargin\z@ \linewidth\hsize
+   \@setminipage}}%
+ {\par\unskip\endMakeFramed%
+ \at@end@of@kframe}
+\makeatother
+
+\definecolor{shadecolor}{rgb}{.97, .97, .97}
+\definecolor{messagecolor}{rgb}{0, 0, 0}
+\definecolor{warningcolor}{rgb}{1, 0, 1}
+\definecolor{errorcolor}{rgb}{1, 0, 0}
+\newenvironment{knitrout}{}{} % an empty environment to be redefined in TeX
+
+\usepackage{alltt} \usepackage[utf8]{inputenc}  \usepackage{url} \usepackage{pgfpages}
 
 \usepackage[detect-all]{siunitx} \sisetup{group-separator = {,},group-minimum-digits = 4, group-digits=integer } %
 
@@ -61,32 +111,13 @@ pdfproducer = {dvips + ps2pdf}}
 \subtitle{ }
 \author{Michael Ash}
 \institute{UMass Amherst}
-
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
 \begin{document}
 
 
-<<setup, include=FALSE, cache=FALSE>>=
-library(knitr)
-library(tidyverse)
-options(dplyr.width=Inf, dplyr.print_max=Inf, scipen=10000)
-library(alfred)
-library(tis) ## for nberDates()
-library(scales) ## for format control of dates on x axis
-library(reshape2)
-library(ggplot2)
-library(stargazer)
-# set global chunk options
-opts_chunk$set(fig.path='figure/econ104-', fig.align='center', fig.show='hold', size='footnotesize')
-options(formatR.arrow=TRUE,width=60)
-(nber  <- mutate(data.frame(nberDates()),
-       Start = as.Date(paste(floor(Start/10000),"-",floor(Start/100) %% 100,"-",Start %% 100,sep="")),
-       End = as.Date(paste(floor(End/10000),"-",floor(End/100) %% 100,"-",End %% 100,sep=""))
-       ))
-@
 
-<<series-for-today, echo=FALSE, warning=FALSE, message=FALSE, cache=FALSE >>=
-rgdp  <- get_fred_series("gdpc1")
-@ 
+
+
 
 
 \begin{frame}
@@ -248,7 +279,7 @@ rgdp  <- get_fred_series("gdpc1")
   \item Consider the wage gap in average earnings between African
     American men (\$621/week) and African-American women (\$582/week)
     \begin{displaymath}
-        \%\text{Difference}  = \frac{582 - 621}{621} =    \Sexpr{ (582-621)/621 } 
+        \%\text{Difference}  = \frac{582 - 621}{621} =    -0.0628019 
     \end{displaymath}
 
 
@@ -359,7 +390,7 @@ rgdp  <- get_fred_series("gdpc1")
     (1) people often mean natural log when they say ``log'' and (2)
     natural log has a special symbol $\ln$.
 
-    For example, $\ln \SI{35}{} = \Sexpr{ log(35) } $ because $e^{ \Sexpr{log(35) }} = 35$
+    For example, $\ln \SI{35}{} = 3.5553481 $ because $e^{ 3.5553481} = 35$
   \end{block}
   
   
@@ -391,14 +422,15 @@ rgdp  <- get_fred_series("gdpc1")
   
   \begin{frame}
     \only<1>{
-    <<logarithm1, fig.width=4.2, fig.height=3.3, include=TRUE, message=FALSE, results='hide', echo=FALSE, warning=FALSE>>=
-    x  <- c(seq(from=0.2,to=1,by=0.1),seq(from=1,to=60))
-    ggplot(data.frame(x=x ,y=log(x)), aes(x=x,y=y)) + geom_line() +
-        scale_x_continuous(breaks=c(1,10,11,20,22,30,33,50,55)) +
-        theme(axis.text.x = element_text(size=5),
-              plot.title = element_text(hjust = 0.5)) +
-        labs(title="y = ln(x)")
-    @ 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figure/econ104-logarithm1-1} 
+
+}
+
+
+\end{knitrout}
 }
 
 \only<2> {An interesting feature of $\ln(x)$ concerns equal percent
@@ -406,53 +438,39 @@ rgdp  <- get_fred_series("gdpc1")
   (a 10\% increase), 30 and 33 (a 10\% increase), and 50 and 55 (a 10\% increase) are all marked on the following slide. }
 
     \only<3>{
-    <<logarithm2, fig.width=4.2, fig.height=3.3, include=TRUE, message=FALSE, results='hide', echo=FALSE, warning=FALSE>>=
-    x  <- c(seq(from=0.2,to=1,by=0.1),seq(from=1,to=60))
-    ggplot(data.frame(x=x ,y=log(x)), aes(x=x,y=y)) + geom_line() +
-        geom_vline(xintercept=10, alpha=.50) + geom_vline(xintercept=11, alpha=.50) +
-        geom_vline(xintercept=20, alpha=.50) + geom_vline(xintercept=22, alpha=.50) +        
-        geom_vline(xintercept=30, alpha=.50) + geom_vline(xintercept=33, alpha=.50) +
-        geom_vline(xintercept=50, alpha=.50) + geom_vline(xintercept=55, alpha=.50) +
-        scale_x_continuous(breaks=c(1,10,11,20,22,30,33,50,55)) +
-        theme(axis.text.x = element_text(size=5),
-              plot.title = element_text(hjust = 0.5)) +
-        labs(title="y = ln(x)")
-    @ 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figure/econ104-logarithm2-1} 
+
+}
+
+
+\end{knitrout}
 }
 
 \only<4>{The next slide demonstrates that equal \emph{percent} changes in $x$ cause equal \emph{absolute} changes in $\ln(x)$.}
 
     \only<5>{
-    <<logarithm3, fig.width=4.2, fig.height=3.3, include=TRUE, message=FALSE, results='hide', echo=FALSE, warning=FALSE>>=
-    x  <- c(seq(from=0.2,to=1,by=0.1),seq(from=1,to=60))
-    ggplot(data.frame(x=x ,y=log(x)), aes(x=x,y=y)) + geom_line() +
-        geom_vline(xintercept=10, alpha=.50) + geom_vline(xintercept=11, alpha=.50) +
-        geom_segment(x=0, y=log(10), xend=10, yend=log(10), alpha=0.2) +
-        geom_segment(x=0, y=log(11), xend=11, yend=log(11), alpha=0.2) +        
-        geom_vline(xintercept=20, alpha=.50) + geom_vline(xintercept=22, alpha=.50) +        
-        geom_segment(x=0, y=log(20), xend=20, yend=log(20), alpha=0.2) +
-        geom_segment(x=0, y=log(22), xend=22, yend=log(22), alpha=0.2) +        
-        geom_vline(xintercept=30, alpha=.50) + geom_vline(xintercept=33, alpha=.50) +
-        geom_segment(x=0, y=log(30), xend=30, yend=log(30), alpha=0.2) +
-        geom_segment(x=0, y=log(33), xend=33, yend=log(33), alpha=0.2) +                
-        geom_vline(xintercept=50, alpha=.50) + geom_vline(xintercept=55, alpha=.50) +
-        geom_segment(x=0, y=log(50), xend=50, yend=log(50), alpha=0.2) +
-        geom_segment(x=0, y=log(55), xend=55, yend=log(55), alpha=0.2) +                
-        scale_x_continuous(breaks=c(1,10,11,20,22,30,33,50,55)) +
-        theme(axis.text.x = element_text(size=5),
-              plot.title = element_text(hjust = 0.5)) +
-        labs(title="y = ln(x)")
-    @ 
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
+
+{\centering \includegraphics[width=\maxwidth]{figure/econ104-logarithm3-1} 
+
+}
+
+
+\end{knitrout}
 }
 
 \only<6>{
   \begin{align}
-    \ln(11) - \ln(10) &= \Sexpr{log(11) - log(10)} \nonumber\\
-    \ln(22) - \ln(20) &= \Sexpr{log(22) - log(20)} \nonumber\\
-    \ln(33) - \ln(30) &= \Sexpr{log(33) - log(30)} \nonumber\\
-    \ln(55) - \ln(50) &= \Sexpr{log(55) - log(50)} \nonumber\\
+    \ln(11) - \ln(10) &= 0.0953102 \nonumber\\
+    \ln(22) - \ln(20) &= 0.0953102 \nonumber\\
+    \ln(33) - \ln(30) &= 0.0953102 \nonumber\\
+    \ln(55) - \ln(50) &= 0.0953102 \nonumber\\
     \omit\rlap{True even for big numbers that are 10\% apart:} \nonumber\\
-    \ln(55000) - \ln(50000) &= \Sexpr{log(55000) - log(50000)} \nonumber
+    \ln(55000) - \ln(50000) &= 0.0953102 \nonumber
   \end{align}
 }
 
@@ -466,16 +484,16 @@ rgdp  <- get_fred_series("gdpc1")
     \end{displaymath}
     What is ``small''? $-0.15 < g < +0.15$
     \begin{align}
-      \scriptstyle      \ln(1 - 0.20) &= \Sexpr{log(0.80)} \stackrel{?}{\approx} -0.20 \nonumber\\
-      \scriptstyle      \ln(1 - 0.10) &= \Sexpr{log(0.90)} \stackrel{?}{\approx} -0.10 \nonumber\\
-      \scriptstyle      \ln(1 - 0.05) &= \Sexpr{log(0.95)} {\approx} -0.05 \nonumber\\
-      \scriptstyle      \ln(1 - 0.03) &= \Sexpr{log(0.97)} {\approx} -0.03 \nonumber\\
-      \scriptstyle      \ln(1 + 0.00) &= \Sexpr{log(1.00)} \nonumber\\
-      \scriptstyle      \ln(1 + 0.03) &= \Sexpr{log(1.03)} {\approx} +0.03 \nonumber\\
-      % \scriptstyle      \ln(1 + 0.05) &= \Sexpr{log(1.05)} {\approx} +0.05 \nonumber\\
-      % \scriptstyle      \ln(1 + 0.10) &= \Sexpr{log(1.10)} \stackrel{?}{\approx} +0.10 \nonumber\\
-      % \scriptstyle      \ln(1 + 0.15) &= \Sexpr{log(1.15)} \stackrel{?}{\approx} +0.15 \nonumber\\
-      % \scriptstyle      \ln(1 + 0.20) &= \Sexpr{log(1.20)} \stackrel{?}{\approx} +0.20 \nonumber
+      \scriptstyle      \ln(1 - 0.20) &= -0.2231436 \stackrel{?}{\approx} -0.20 \nonumber\\
+      \scriptstyle      \ln(1 - 0.10) &= -0.1053605 \stackrel{?}{\approx} -0.10 \nonumber\\
+      \scriptstyle      \ln(1 - 0.05) &= -0.0512933 {\approx} -0.05 \nonumber\\
+      \scriptstyle      \ln(1 - 0.03) &= -0.0304592 {\approx} -0.03 \nonumber\\
+      \scriptstyle      \ln(1 + 0.00) &= 0 \nonumber\\
+      \scriptstyle      \ln(1 + 0.03) &= 0.0295588 {\approx} +0.03 \nonumber\\
+      % \scriptstyle      \ln(1 + 0.05) &= log(1.05) {\approx} +0.05 \nonumber\\
+      % \scriptstyle      \ln(1 + 0.10) &= log(1.10) \stackrel{?}{\approx} +0.10 \nonumber\\
+      % \scriptstyle      \ln(1 + 0.15) &= log(1.15) \stackrel{?}{\approx} +0.15 \nonumber\\
+      % \scriptstyle      \ln(1 + 0.20) &= log(1.20) \stackrel{?}{\approx} +0.20 \nonumber
       \scriptstyle      \ln(1 + 0.05) &= \hspace{1in}   {\approx} +0.05 \nonumber\\
       \scriptstyle      \ln(1 + 0.10) &= \hspace{1in}   \stackrel{?}{\approx} +0.10 \nonumber\\
       \scriptstyle      \ln(1 + 0.15) &= \hspace{1in}   \stackrel{?}{\approx} +0.15 \nonumber\\
@@ -598,32 +616,28 @@ rgdp  <- get_fred_series("gdpc1")
 
 
 \begin{frame}
-<<gdp, fig.width=4.2, fig.height=3.3, include=TRUE, message=FALSE, results='hide', echo=FALSE, warning=FALSE>>=
-nber.trim  <- subset(nber, Start >= min(with(rgdp,date)))
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-gdp.gg <- ggplot(rgdp) +
-    geom_line(aes(x=date, y=gdpc1),size=1) +
-    xlab("Year") + ylab("billion of USD") +
-    labs(title="Real GDP") +
-    scale_x_date(date_breaks = "10 years", date_minor_breaks = "1 year", labels=date_format("%Y") ) + 
-    geom_rect(data=nber.trim,aes(xmin=Start,xmax=End,ymin=-Inf, ymax=+Inf),fill="pink", alpha=0.7)
-print(gdp.gg)
-@ 
+{\centering \includegraphics[width=\maxwidth]{figure/econ104-gdp-1} 
+
+}
+
+
+\end{knitrout}
 \end{frame}
 
 
 \begin{frame}
-<<log-gdp, fig.width=4.2, fig.height=3.3, include=TRUE, message=FALSE, results='hide', echo=FALSE, warning=FALSE>>=
-nber.trim  <- subset(nber, Start >= min(with(rgdp,date)))
+\begin{knitrout}\footnotesize
+\definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}
 
-gdp.gg <- ggplot(rgdp) +
-    geom_line(aes(x=date, y=log(gdpc1)),size=1) +
-    xlab("Year") + ylab("ln GDP") +
-    labs(title="ln Real GDP") +
-    scale_x_date(date_breaks = "10 years", date_minor_breaks = "1 year", labels=date_format("%Y") ) + 
-    geom_rect(data=nber.trim,aes(xmin=Start,xmax=End,ymin=-Inf, ymax=+Inf),fill="pink", alpha=0.7)
-print(gdp.gg)
-@ 
+{\centering \includegraphics[width=\maxwidth]{figure/econ104-log-gdp-1} 
+
+}
+
+
+\end{knitrout}
 \end{frame}
 
 

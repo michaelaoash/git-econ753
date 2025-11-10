@@ -2,7 +2,7 @@
 %% Rscript -e "library(knitr); knit('test-knitr.Rnw')" &
 %% pdflatex test.tex
 
-\documentclass{article}\usepackage[]{graphicx}\usepackage[]{color}
+\documentclass{article}\usepackage[]{graphicx}\usepackage[]{xcolor}
 % maxwidth is the original width if it is less than linewidth
 % otherwise use linewidth (to make sure the graphics do not exceed the margin)
 \makeatletter
@@ -17,10 +17,10 @@
 
 \definecolor{fgcolor}{rgb}{0.345, 0.345, 0.345}
 \newcommand{\hlnum}[1]{\textcolor[rgb]{0.686,0.059,0.569}{#1}}%
-\newcommand{\hlstr}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
+\newcommand{\hlsng}[1]{\textcolor[rgb]{0.192,0.494,0.8}{#1}}%
 \newcommand{\hlcom}[1]{\textcolor[rgb]{0.678,0.584,0.686}{\textit{#1}}}%
 \newcommand{\hlopt}[1]{\textcolor[rgb]{0,0,0}{#1}}%
-\newcommand{\hlstd}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
+\newcommand{\hldef}[1]{\textcolor[rgb]{0.345,0.345,0.345}{#1}}%
 \newcommand{\hlkwa}[1]{\textcolor[rgb]{0.161,0.373,0.58}{\textbf{#1}}}%
 \newcommand{\hlkwb}[1]{\textcolor[rgb]{0.69,0.353,0.396}{#1}}%
 \newcommand{\hlkwc}[1]{\textcolor[rgb]{0.333,0.667,0.333}{#1}}%
@@ -70,8 +70,8 @@ get started with some boring random numbers:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{set.seed}\hlstd{(}\hlnum{1121}\hlstd{)}
-\hlstd{(x}\hlkwb{=}\hlkwd{rnorm}\hlstd{(}\hlnum{20}\hlstd{))}
+\hlkwd{set.seed}\hldef{(}\hlnum{1121}\hldef{)}
+\hldef{(x} \hlkwb{<-} \hlkwd{rnorm}\hldef{(}\hlnum{20}\hldef{))}
 \end{alltt}
 \begin{verbatim}
 ##  [1]  0.1449583  0.4383221  0.1531912  1.0849426  1.9995449
@@ -80,7 +80,7 @@ get started with some boring random numbers:
 ## [16]  1.8097690  0.5084011 -0.5274603  0.1327188 -0.1559430
 \end{verbatim}
 \begin{alltt}
-\hlstd{(xbar}  \hlkwb{<-} \hlkwd{mean}\hlstd{(x)); (xvar}  \hlkwb{<-} \hlkwd{var}\hlstd{(x))}
+\hldef{(xbar} \hlkwb{<-} \hlkwd{mean}\hldef{(x)); (xvar} \hlkwb{<-} \hlkwd{var}\hldef{(x))}
 \end{alltt}
 \begin{verbatim}
 ## [1] 0.3217385
@@ -96,7 +96,7 @@ point we hand random-number generation back to the system:
 \begin{knitrout}
 \definecolor{shadecolor}{rgb}{0.969, 0.969, 0.969}\color{fgcolor}\begin{kframe}
 \begin{alltt}
-\hlkwd{set.seed}\hlstd{(}\hlkwd{Sys.time}\hlstd{())}
+\hlkwd{set.seed}\hldef{(}\hlkwd{Sys.time}\hldef{())}
 \end{alltt}
 \end{kframe}
 \end{knitrout}
@@ -107,7 +107,7 @@ The coin comes up heads.
 
 
 
-Here is the result of another coin toss.  The coin comes up tails instead.
+Here is the result of another coin toss.  The coin comes up heads again.
 
 A boring plot in ggplot can be see in Figure~\ref{fig:boring}.
 
@@ -129,21 +129,21 @@ Summary statistics are in Table~\ref{tab:summary}.
 
 \begin{kframe}
 \begin{alltt}
-\hlkwd{stargazer}\hlstd{(cars,} \hlkwc{title}\hlstd{=}\hlstr{"Summary statistics"}\hlstd{,} \hlkwc{label}\hlstd{=}\hlstr{"tab:summary"}\hlstd{)}
+\hlkwd{stargazer}\hldef{(cars,} \hlkwc{title} \hldef{=} \hlsng{"Summary statistics"}\hldef{,} \hlkwc{label}\hldef{=} \hlsng{"tab:summary"}\hldef{)}
 \end{alltt}
 \end{kframe}
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Mon, Nov 10, 2025 - 05:22:35 PM
 \begin{table}[!htbp] \centering 
   \caption{Summary statistics} 
   \label{tab:summary} 
-\begin{tabular}{@{\extracolsep{5pt}}lccccccc} 
+\begin{tabular}{@{\extracolsep{5pt}}lccccc} 
 \\[-1.8ex]\hline 
 \hline \\[-1.8ex] 
-Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Pctl(25)} & \multicolumn{1}{c}{Pctl(75)} & \multicolumn{1}{c}{Max} \\ 
+Statistic & \multicolumn{1}{c}{N} & \multicolumn{1}{c}{Mean} & \multicolumn{1}{c}{St. Dev.} & \multicolumn{1}{c}{Min} & \multicolumn{1}{c}{Max} \\ 
 \hline \\[-1.8ex] 
-speed & 50 & 15.400 & 5.288 & 4 & 12 & 19 & 25 \\ 
-dist & 50 & 42.980 & 25.769 & 2 & 26 & 56 & 120 \\ 
+speed & 50 & 15.400 & 5.288 & 4 & 25 \\ 
+dist & 50 & 42.980 & 25.769 & 2 & 120 \\ 
 \hline \\[-1.8ex] 
 \end{tabular} 
 \end{table} 
@@ -156,11 +156,11 @@ And the regression results are in Table~\ref{tab:regression}
 
 \begin{kframe}
 \begin{alltt}
-\hlkwd{stargazer}\hlstd{(model1, model2, model3,} \hlkwc{title}\hlstd{=}\hlstr{"Regression results"}\hlstd{,} \hlkwc{label}\hlstd{=}\hlstr{"tab:regression"}\hlstd{)}
+\hlkwd{stargazer}\hldef{(model1, model2, model3,} \hlkwc{title}\hldef{=}\hlsng{"Regression results"}\hldef{,} \hlkwc{label}\hldef{=}\hlsng{"tab:regression"}\hldef{)}
 \end{alltt}
 \end{kframe}
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Mon, Nov 10, 2025 - 05:22:35 PM
 \begin{table}[!htbp] \centering 
   \caption{Regression results} 
   \label{tab:regression} 
@@ -175,8 +175,11 @@ And the regression results are in Table~\ref{tab:regression}
  speed & 3.932$^{***}$ & 0.913 & 6.801 \\ 
   & (0.416) & (2.034) & (6.801) \\ 
   & & & \\ 
- I(speed$\hat{\mkern6mu}$2) &  & 0.100 & $-$0.350 \\ 
-  &  & (0.066) & (0.500) \\ 
+ I(speed \textasteriskcentered  speed) &  & 0.100 &  \\ 
+  &  & (0.066) &  \\ 
+  & & & \\ 
+ I(speed$\hat{\mkern6mu}$2) &  &  & $-$0.350 \\ 
+  &  &  & (0.500) \\ 
   & & & \\ 
  I(speed$\hat{\mkern6mu}$3) &  &  & 0.010 \\ 
   &  &  & (0.011) \\ 
@@ -201,11 +204,11 @@ F Statistic & 89.567$^{***}$ (df = 1; 48) & 47.141$^{***}$ (df = 2; 47) & 31.584
 
 \begin{kframe}
 \begin{alltt}
-\hlkwd{stargazer}\hlstd{(model1, model2, model3,} \hlkwc{title}\hlstd{=}\hlstr{"Regression results with new names"}\hlstd{,} \hlkwc{label}\hlstd{=}\hlstr{"tab:regression:newnames"}\hlstd{)}
+\hlkwd{stargazer}\hldef{(model1, model2, model3,} \hlkwc{title}\hldef{=}\hlsng{"Regression results with new names"}\hldef{,} \hlkwc{label}\hldef{=}\hlsng{"tab:regression:newnames"}\hldef{)}
 \end{alltt}
 \end{kframe}
-% Table created by stargazer v.5.2.2 by Marek Hlavac, Harvard University. E-mail: hlavac at fas.harvard.edu
-% Date and time: Tue, Nov 16, 2021 - 12:31:24 PM
+% Table created by stargazer v.5.2.3 by Marek Hlavac, Social Policy Institute. E-mail: marek.hlavac at gmail.com
+% Date and time: Mon, Nov 10, 2025 - 05:22:35 PM
 \begin{table}[!htbp] \centering 
   \caption{Regression results with new names} 
   \label{tab:regression:newnames} 
@@ -243,12 +246,7 @@ F Statistic & 89.567$^{***}$ (df = 1; 48) & 47.141$^{***}$ (df = 2; 47) & 31.584
 
 
 
-Do the chunks work? You should be able to compile the \LaTeX{} document.
-
-
+Do the R code chunks work? You should be able to compile the \LaTeX{} document.
 
 
 \end{document}
-
-
-
