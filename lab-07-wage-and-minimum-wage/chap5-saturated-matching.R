@@ -14,6 +14,7 @@ chap5.cps$year.f <- factor(chap5.cps$year)
 ## Matching with full saturation
 ## See also full-saturation-matching.R
 cps85 <- subset(chap5.cps,year==1985)
+cps85 <- chap5.cps %>% filter(year==1985)
 
 ## This creates the demographic groups by education, experience, nonwhite, and hispanicity
 ## The formatC business adds leading zeros to the single-digit values so they sort properly
@@ -22,25 +23,41 @@ cps85 <- mutate(cps85,
                              formatC(ex, width = 2, format = "d", flag = "0"),
                              nonwh,hisp))
 
+cps85 <- mutate(cps85,
+                dem = paste(formatC(ed, width = 2, format = "d", flag = "0"),
+                            formatC(ex, width = 2, format = "d", flag = "0"))
+                )
+
+
+
 ## Here is a straightforward way to get the needed elements
 dem.fe.lnwage <- with(cps85, tapply(lnwage,list(dem,fe),mean))
 dem.fe.counts <- with(cps85, tapply(lnwage,list(dem,fe),length))
 
+## Improved with tidyverse
 ## This is equivalent to the Stata collapse command
 cps85.sum <- cps85 %>% group_by(dem, fe) %>% summarize(lnwage=mean(lnwage), N = n())
+
+
 ## Note that the demographic grouping could all be handled here
-
-
+## Aside: try this for occpation by year
 chap5.cps %>% group_by(occupation, year) %>% summarize(lnwage=mean(lnwage), ed = mean(ed), N = n())
-
 
 ## This reshapes the data from long dem,fe to wide dem x fe
 ## http://www.jstatsoft.org/v21/i12/paper
+## Old melt/cast formulation
 cps85.melt <- melt(cps85.sum, id=c("dem","fe"), measured=c("lnwage","N")  )
 cps85.cast <- dcast(cps85.melt, dem ~ fe + variable)
 
-## This differences mean wage by sex 
-cps85.diff <- within(cps85.cast, diff_lnwage <- `1_lnwage` - `0_lnwage`)
+## New pivot_wider formulation
+cps85.diff <- cps85.sum %>%
+    pivot_wider(id_cols = "dem", names_from = fe, values_from = c(lnwage, N)) %>%
+    mutate(
+        diff_lnwage = lnwage_1 - lnwage_0
+    )
+
+## This differences mean wage by sex
+
 
 ## Mean difference weighted by number of women in the demographic cell
 with(cps85.diff, weighted.mean(diff_lnwage, `1_N`,na.rm=TRUE))
