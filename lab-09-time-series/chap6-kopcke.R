@@ -1,4 +1,4 @@
-##pdf(width = 11, paper = "USr")
+## pdf(width = 11, paper = "USr")
 
 ## Kopcke private fixed capital investment
 ## https://fred.stlouisfed.org/release?rid=356
@@ -6,7 +6,6 @@
 library(ggplot2)
 library(tidyverse)
 library(lmtest)
-library(reshape2)
 library(nlme)
 library(here)
 library(dynlm)
@@ -42,17 +41,17 @@ cochrane_orcutt <- function(mod) {
 
 
 
-kopcke <- read.csv(here("lab-09-time-series/chap6-kopcke.csv"))
+kopcke <- read_csv(here("lab-09-time-series/chap6-kopcke.csv"))
 
-kopcke_dt <- as.yearqtr(paste(kopcke$rdate %/% 10, kopcke$rdate %% 10), "%Y %q")
+kopcke <- kopcke %>%
+    mutate(
+        kopcke_dt = as.yearqtr(paste(rdate %/% 10, rdate %% 10), "%Y %q"),
+        date = as.Date(kopcke_dt),
+        )
 
-kopcke_z <- zoo(kopcke, order.by = kopcke_dt)
-kopcke.ts <- ts(kopcke, start = c(1952, 1), end = c(1986, 4), frequency = 4, class = "matrix")
+rownames(kopcke) <- kopcke$kopcke_dt
 
-## plot(cbind(kopcke_z$je/kopcke_z$js, kopcke_z$ie/kopcke_z$is, kopcke_z$kelag/kopcke_z$kslag))
-
-kopcke.df0 <- data.frame(time = time(kopcke_z), Year = as.numeric(as.yearqtr(time(kopcke_z))), kopcke_z)
-kopcke.df1 <- mutate(kopcke.df0,
+kopcke <- mutate(kopcke,
                      jes = je / js, ies  =  ie / is, ces  =  ce / cs,
                      ke = ld(kelag), ks = ld(kslag), kes = ke / ks,
                      k = ke + ks,
@@ -62,116 +61,102 @@ kopcke.df1 <- mutate(kopcke.df0,
                      ck =  (ce * kelag + cs * kslag) / (kelag + kslag))
 
 
-kopcke_z2 <- zoo(subset(kopcke.df1, select = -time), order.by = kopcke_dt)
-## zoo makes window() flaky on start/end
-## frequency(kopcke_z2)
-## time(window(kopcke_z2, start = "1954 Q1", end = "1977 Q4"))  ## Good
-## time(window(kopcke_z2, start = c(1954, 1), end = c(1977, 4), frequency = 4)) ## Bad
+kopcke.melt <- kopcke %>% pivot_longer(cols = -c(rdate, kopcke_dt, date))
 
-kopcke.melt <- melt(kopcke.df1, id.vars = c("Year"))
 
-## To set the series order for plotting
-kopcke.melt$variable <- factor(kopcke.melt$variable,
-                               levels  =  c("time", "rdate", "ck", "js", "je", "f", "is", "ie", "kelag", "kslag", "k", "y", "ky", "u", "q", "cs", "ce", "jes", "ies", "ke", "ks", "kes", "ien", "isn"))
-
-n <- ggplot(subset(kopcke.melt, variable=="jes" | variable=="ies" | variable=="kes"), aes(x = Year, y = value, color = variable)) + facet_wrap(~ variable, ncol = 1, scales = "free") + geom_line()
+n <- ggplot(subset(kopcke.melt, name=="jes" | name=="ies" | name=="kes"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
+    geom_line()
 print(n)
 
-n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="isn"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="ien" | name=="isn"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 
-n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="ien_alt"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "fixed") +
+n <- ggplot(subset(kopcke.melt, name=="ien" | name=="ien_alt"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "fixed") +
     geom_line()
 print(n)
 
 
-n <- ggplot(subset(kopcke.melt, variable=="ke" | variable=="ks"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="ke" | name=="ks"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 ## Output, capital stock and capital-to-output ratio
-n <- ggplot(subset(kopcke.melt, variable=="ky" | variable == "y" | variable == "k"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="ky" | name == "y" | name == "k"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 ## Net investment, capital stock, and cost of capital (equipment)
-n <- ggplot(subset(kopcke.melt, variable=="ien" | variable=="ke" | variable=="ce"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="ien" | name=="ke" | name=="ce"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
-
 
 ## dev.new()
 
 ## Cost of capital
-n <- ggplot(subset(kopcke.melt, variable=="cs" | variable=="ce"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="cs" | name=="ce"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 ## dev.new()
 
-## Q
-n <- ggplot(subset(kopcke.melt, variable=="q"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
-    geom_line()
-print(n)
-
 ## Q and Capacity Utilization
-n <- ggplot(subset(kopcke.melt, variable=="q" | variable=="u"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="q" | name=="u"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 ## Q and Cost of Capital
-n <- ggplot(subset(kopcke.melt, variable=="ck" | variable=="q"),
-            aes(x = Year, y = value, color = variable)) +
-    facet_wrap(~ variable, ncol = 1, scales = "free") +
+n <- ggplot(subset(kopcke.melt, name=="ck" | name=="q"),
+            aes(x = date, y = value, color = name)) +
+    facet_wrap(~ name, ncol = 1, scales = "free") +
     geom_line()
 print(n)
 
 ## Q and Cost of Capital Scatterplot
-n <- ggplot(kopcke.df1, aes(x = ck, y = q)) +
+n <- ggplot(kopcke, aes(x = ck, y = q)) +
     geom_point() +
     geom_smooth(method = "lm", se = FALSE)
 print(n)
 
 ## Q and Capacity Utilization Scatterplot
-n <- ggplot(kopcke.df1, aes(x = u, y = q)) +
+n <- ggplot(kopcke, aes(x = u, y = q)) +
     geom_point() +
     geom_smooth(method = "lm", se = FALSE)
 print(n)
 
-
-
+## Create a "zoo" object for use with dynlm()
+kopcke_z2 <- zoo(kopcke %>% select(ie, is, je, js, kelag, kslag, f, y), order.by = kopcke$kopcke_dt)
 
 ## 6e2a Estimate equation 6.14 (equipment e and structures s)
 summary(eqn614e <- dynlm(data = kopcke_z2, ie ~ L(y, 0:1) + L(ie, 1), start = c(1956, 1), end = c(1986, 4)))
+summary(eqn614e <- dynlm(data = kopcke_z2, ie ~ L(y, 0:1) + L(ie, 1)))
 dwtest(eqn614e)
-(lambda <- 1 - coef(eqn614e)[4])
-(mu <- coef(eqn614e)[2] / lambda)
-(delta <- coef(eqn614e)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e)[[4]])
+(mu <- coef(eqn614e)[[2]] / lambda)
+(delta <- coef(eqn614e)[[3]] / (mu * lambda) + 1)
 
 summary(eqn614s <- dynlm(data = kopcke_z2, is ~ L(y, 0:1) + L(is, 1), start = c(1956, 1), end = c(1986, 4)))
 dwtest(eqn614s)
-(lambda <- 1 - coef(eqn614s)[4])
-(mu <- coef(eqn614s)[2] / lambda)
-(delta <- coef(eqn614s)[3] / (mu * lambda) + 1)
-
+(lambda <- 1 - coef(eqn614s)[[4]])
+(mu <- coef(eqn614s)[[2]] / lambda)
+(delta <- coef(eqn614s)[[3]] / (mu * lambda) + 1)
 
 
 lmqfd <- function(y, X, rho){
@@ -201,90 +186,88 @@ hildreth_lu <- function(mod) {
 
 
 
-(eqn614s_ols  <- lm(data = dplyr::filter(kopcke.df1, Year > 1956),
+(eqn614s_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
                     is ~ y + dplyr::lag(y) + dplyr::lag(is)))
-(lambda <- 1 - coef(eqn614s_ols)[4])
-(mu <- coef(eqn614s_ols)[2] / lambda)
-(delta <- coef(eqn614s_ols)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_ols)[[4]])
+(mu <- coef(eqn614s_ols)[[2]] / lambda)
+(delta <- coef(eqn614s_ols)[[3]] / (mu * lambda) + 1)
 
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane_orcutt(eqn614s_ols))
 ## dwtest(eqn614s_co)
-(lambda <- 1 - coef(eqn614s_co)[4])
-(mu <- coef(eqn614s_co)[2] / lambda)
-(delta <- coef(eqn614s_co)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_co)[[4]])
+(mu <- coef(eqn614s_co)[[2]] / lambda)
+(delta <- coef(eqn614s_co)[[3]] / (mu * lambda) + 1)
 
 rmses <- hildreth_lu(eqn614s_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[4])
-(mu <- coef(lmqfd.lm)[2] / lambda)
-(delta <- coef(lmqfd.lm)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[[4]])
+(mu <- coef(lmqfd.lm)[[2]] / lambda)
+(delta <- coef(lmqfd.lm)[[3]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
 ## Try without constant
-(eqn614s_ols  <- lm(data = dplyr::filter(kopcke.df1, Year > 1956),
+(eqn614s_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
                     is ~ 0 + y + dplyr::lag(y) + dplyr::lag(is)))
-(lambda <- 1 - coef(eqn614s_ols)[3])
-(mu <- coef(eqn614s_ols)[1] / lambda)
-(delta <- coef(eqn614s_ols)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_ols)[[3]])
+(mu <- coef(eqn614s_ols)[[1]] / lambda)
+(delta <- coef(eqn614s_ols)[[2]] / (mu * lambda) + 1)
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane_orcutt(eqn614s_ols))
 ## dwtest(eqn614s_co)
-(lambda <- 1 - coef(eqn614s_co)[3])
-(mu <- coef(eqn614s_co)[1] / lambda)
-(delta <- coef(eqn614s_co)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_co)[[3]])
+(mu <- coef(eqn614s_co)[[1]] / lambda)
+(delta <- coef(eqn614s_co)[[2]] / (mu * lambda) + 1)
 rmses <- hildreth_lu(eqn614s_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[3])
-(mu <- coef(lmqfd.lm)[1] / lambda)
-(delta <- coef(lmqfd.lm)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[[3]])
+(mu <- coef(lmqfd.lm)[[1]] / lambda)
+(delta <- coef(lmqfd.lm)[[2]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
 
 
-
-
-(eqn614e_ols  <- lm(data = dplyr::filter(kopcke.df1, Year > 1956),
+(eqn614e_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
                     ie ~ y + dplyr::lag(y) + dplyr::lag(ie)))
-(lambda <- 1 - coef(eqn614e_ols)[4])
-(mu <- coef(eqn614e_ols)[2] / lambda)
-(delta <- coef(eqn614e_ols)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_ols)[[4]])
+(mu <- coef(eqn614e_ols)[[2]] / lambda)
+(delta <- coef(eqn614e_ols)[[3]] / (mu * lambda) + 1)
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane_orcutt(eqn614e_ols))
 ## dwtest(eqn614e_co)
-(lambda <- 1 - coef(eqn614e_co)[4])
-(mu <- coef(eqn614e_co)[2] / lambda)
-(delta <- coef(eqn614e_co)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_co)[[4]])
+(mu <- coef(eqn614e_co)[[2]] / lambda)
+(delta <- coef(eqn614e_co)[[3]] / (mu * lambda) + 1)
 rmses <- hildreth_lu(eqn614e_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[4])
-(mu <- coef(lmqfd.lm)[2] / lambda)
-(delta <- coef(lmqfd.lm)[3] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[[4]])
+(mu <- coef(lmqfd.lm)[[2]] / lambda)
+(delta <- coef(lmqfd.lm)[[3]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
 
 
 ## Try without constant
-(eqn614e_ols  <- lm(data = dplyr::filter(kopcke.df1, Year > 1956),
+(eqn614e_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
                     ie ~ 0+ y + dplyr::lag(y) + dplyr::lag(ie)))
-(lambda <- 1 - coef(eqn614e_ols)[3])
-(mu <- coef(eqn614e_ols)[1] / lambda)
-(delta <- coef(eqn614e_ols)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_ols)[[3]])
+(mu <- coef(eqn614e_ols)[[1]] / lambda)
+(delta <- coef(eqn614e_ols)[[2]] / (mu * lambda) + 1)
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane_orcutt(eqn614e_ols))
 ## dwtest(eqn614e_co)
-(lambda <- 1 - coef(eqn614e_co)[3])
-(mu <- coef(eqn614e_co)[1] / lambda)
-(delta <- coef(eqn614e_co)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_co)[[3]])
+(mu <- coef(eqn614e_co)[[1]] / lambda)
+(delta <- coef(eqn614e_co)[[2]] / (mu * lambda) + 1)
 
 rmses <- hildreth_lu(eqn614e_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[3])
-(mu <- coef(lmqfd.lm)[1] / lambda)
-(delta <- coef(lmqfd.lm)[2] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[[3]])
+(mu <- coef(lmqfd.lm)[[1]] / lambda)
+(delta <- coef(lmqfd.lm)[[2]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
@@ -347,27 +330,30 @@ dwtest(autoregressive_6)
 
 
 ## Back out depreciation rates for equipment based on gross investment and capital stock, 1953 and 1986
-subset(kopcke.df1, Year >= 1952.75 & Year < 1954, select = c(ie, kelag, Year))
-(ke52_4 <- kopcke.df1["1952 Q4", "kelag"])
-(ke53_4 <- kopcke.df1["1953 Q4", "kelag"])
-(ie53 <- (kopcke.df1["1953 Q1", "ie"] + kopcke.df1["1953 Q2", "ie"] + kopcke.df1["1953 Q3", "ie"] + kopcke.df1["1953 Q4", "ie"]) / 4)
+subset(kopcke, year(date) >= 1952.75 & year(date) < 1954, select = c(ie, kelag, date))
+(ke52_4 <- kopcke %>% filter(kopcke_dt == "1952 Q4") %>% pull(kelag))
+(ke53_4 <- kopcke %>% filter(kopcke_dt == "1953 Q4") %>% pull(kelag))
+ie53 <- kopcke %>% filter(kopcke_dt %in% c("1953 Q1", "1953 Q2", "1953 Q3", "1953 Q4")) %>% pull(ie) %>% sum()/4
 (delta53 <- 1 - (ke53_4 - ie53) / ke52_4)
 
-subset(kopcke.df1, Year >= 1985.75 & Year < 1987, select = c(ie, kelag, Year))
-(ke85_4 <- kopcke.df1["1985 Q4", "kelag"])
-(ke86_4 <- kopcke.df1["1986 Q4", "kelag"])
-(ie86 <- (kopcke.df1["1986 Q1", "ie"] + kopcke.df1["1986 Q2", "ie"] + kopcke.df1["1986 Q3", "ie"] + kopcke.df1["1986 Q4", "ie"]) / 4)
+
+subset(kopcke, date >= 1985.75 & date < 1987, select = c(ie, kelag, date))
+(ke85_4 <- kopcke %>% filter(kopcke_dt == "1985 Q4") %>% pull(kelag))
+(ke86_4 <- kopcke %>% filter(kopcke_dt == "1986 Q4") %>% pull(kelag))
+ie86 <- kopcke %>% filter(kopcke_dt %in% c("1986 Q1", "1986 Q2", "1986 Q3", "1986 Q4")) %>% pull(ie) %>% sum()/4
 (delta86 <- 1 - (ke86_4 - ie86) / ke85_4)
 
+
+
 ## Back out depreciation rates for structures based on gross investment and capital stock, 1953 and 1986
-subset(kopcke.df1, Year >= 1952.75 & Year < 1954, select = c(is, kslag, Year))
-(ks52_4 <- kopcke.df1["1952 Q4", "kslag"])
-(ks53_4 <- kopcke.df1["1953 Q4", "kslag"])
-(is53 <- (kopcke.df1["1953 Q1", "is"] + kopcke.df1["1953 Q2", "is"] + kopcke.df1["1953 Q3", "is"] + kopcke.df1["1953 Q4", "is"]) / 4)
+subset(kopcke, date >= 1952.75 & date < 1954, select = c(is, kslag, date))
+(ks52_4 <- kopcke %>% filter(kopcke_dt == "1952 Q4") %>% pull(kslag))
+(ks53_4 <- kopcke %>% filter(kopcke_dt == "1953 Q4") %>% pull(kslag))
+is53 <- kopcke %>% filter(kopcke_dt %in% c("1953 Q1", "1953 Q2", "1953 Q3", "1953 Q4")) %>% pull(is) %>% sum()/4
 (delta53 <- 1 - (ks53_4 - is53) / ks52_4)
 
-subset(kopcke.df1, Year >= 1985.75 & Year < 1987, select = c(is, kslag, Year))
-(ks85_4 <- kopcke.df1["1985 Q4", "kslag"])
-(ks86_4 <- kopcke.df1["1986 Q4", "kslag"])
-(is86 <- (kopcke.df1["1986 Q1", "is"] + kopcke.df1["1986 Q2", "is"] + kopcke.df1["1986 Q3", "is"] + kopcke.df1["1986 Q4", "is"]) / 4)
+subset(kopcke, date >= 1985.75 & date < 1987, select = c(is, kslag, date))
+(ks85_4 <- kopcke %>% filter(kopcke_dt == "1985 Q4") %>% pull(kslag))
+(ks86_4 <- kopcke %>% filter(kopcke_dt == "1986 Q4") %>% pull(kslag))
+is86 <- kopcke %>% filter(kopcke_dt %in% c("1986 Q1", "1986 Q2", "1986 Q3", "1986 Q4")) %>% pull(is) %>% sum()/4
 (delta86 <- 1 - (ks86_4 - is86) / ks85_4)
