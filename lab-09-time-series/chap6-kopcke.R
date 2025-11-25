@@ -148,15 +148,15 @@ kopcke_z2 <- zoo(kopcke %>% select(ie, is, je, js, kelag, kslag, f, y), order.by
 summary(eqn614e <- dynlm(data = kopcke_z2, ie ~ L(y, 0:1) + L(ie, 1), start = c(1956, 1), end = c(1986, 4)))
 summary(eqn614e <- dynlm(data = kopcke_z2, ie ~ L(y, 0:1) + L(ie, 1)))
 dwtest(eqn614e)
-(lambda <- 1 - coef(eqn614e)[[4]])
-(mu <- coef(eqn614e)[[2]] / lambda)
-(delta <- coef(eqn614e)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e)[["L(ie, 1)"]])
+(mu <- coef(eqn614e)[["L(y, 0:1)0"]] / lambda)
+(delta <- coef(eqn614e)[["L(y, 0:1)1"]] / (mu * lambda) + 1)
 
 summary(eqn614s <- dynlm(data = kopcke_z2, is ~ L(y, 0:1) + L(is, 1), start = c(1956, 1), end = c(1986, 4)))
 dwtest(eqn614s)
-(lambda <- 1 - coef(eqn614s)[[4]])
-(mu <- coef(eqn614s)[[2]] / lambda)
-(delta <- coef(eqn614s)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s)[["L(is, 1)"]])
+(mu <- coef(eqn614s)[["L(y, 0:1)0"]] / lambda)
+(delta <- coef(eqn614s)[["L(y, 0:1)1"]] / (mu * lambda) + 1)
 
 
 lmqfd <- function(y, X, rho){
@@ -186,104 +186,97 @@ hildreth_lu <- function(mod) {
 
 
 
-(eqn614s_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
-                    is ~ y + dplyr::lag(y) + dplyr::lag(is)))
-(lambda <- 1 - coef(eqn614s_ols)[[4]])
-(mu <- coef(eqn614s_ols)[[2]] / lambda)
-(delta <- coef(eqn614s_ols)[[3]] / (mu * lambda) + 1)
+(eqn614s_ols  <- lm(data = filter(kopcke, year(date) > 1956),
+                    is ~ y + lag(y) + lag(is)))
+(lambda <- 1 - coef(eqn614s_ols)[["lag(is)"]])
+(mu <- coef(eqn614s_ols)[["y"]] / lambda)
+(delta <- coef(eqn614s_ols)[["lag(y)"]] / (mu * lambda) + 1)
 
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane_orcutt(eqn614s_ols))
 ## dwtest(eqn614s_co)
-(lambda <- 1 - coef(eqn614s_co)[[4]])
-(mu <- coef(eqn614s_co)[[2]] / lambda)
-(delta <- coef(eqn614s_co)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_co)[["lag(is)"]])
+(mu <- coef(eqn614s_co)[["y"]] / lambda)
+(delta <- coef(eqn614s_co)[["lag(y)"]] / (mu * lambda) + 1)
 
+
+## Whoops these are kind of garbage!!
 rmses <- hildreth_lu(eqn614s_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[[4]])
-(mu <- coef(lmqfd.lm)[[2]] / lambda)
-(delta <- coef(lmqfd.lm)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[["Xqfdlag(is)"]])
+(mu <- coef(lmqfd.lm)[["Xqfdy"]] / lambda)
+(delta <- coef(lmqfd.lm)[["Xqfdlag(y)"]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
+
 ## Try without constant
-(eqn614s_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
-                    is ~ 0 + y + dplyr::lag(y) + dplyr::lag(is)))
-(lambda <- 1 - coef(eqn614s_ols)[[3]])
-(mu <- coef(eqn614s_ols)[[1]] / lambda)
-(delta <- coef(eqn614s_ols)[[2]] / (mu * lambda) + 1)
+(eqn614s_ols  <- lm(data = filter(kopcke, year(date) > 1956),
+                    is ~ 0 + y + lag(y) + lag(is)))
+(lambda <- 1 - coef(eqn614s_ols)[["lag(is)"]])
+(mu <- coef(eqn614s_ols)[["y"]] / lambda)
+(delta <- coef(eqn614s_ols)[["lag(y)"]] / (mu * lambda) + 1)
 dwtest(eqn614s_ols)
 (eqn614s_co  <- cochrane_orcutt(eqn614s_ols))
 ## dwtest(eqn614s_co)
-(lambda <- 1 - coef(eqn614s_co)[[3]])
-(mu <- coef(eqn614s_co)[[1]] / lambda)
-(delta <- coef(eqn614s_co)[[2]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614s_co)[["lag(is)"]])
+(mu <- coef(eqn614s_co)[["y"]] / lambda)
+(delta <- coef(eqn614s_co)[["lag(y)"]] / (mu * lambda) + 1)
+
+## And again kind of no good
 rmses <- hildreth_lu(eqn614s_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[[3]])
-(mu <- coef(lmqfd.lm)[[1]] / lambda)
-(delta <- coef(lmqfd.lm)[[2]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[["Xqfdlag(is)"]])
+(mu <- coef(lmqfd.lm)[["Xqfdy"]] / lambda)
+(delta <- coef(lmqfd.lm)[["Xqfdlag(y)"]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
 
 
-(eqn614e_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
-                    ie ~ y + dplyr::lag(y) + dplyr::lag(ie)))
-(lambda <- 1 - coef(eqn614e_ols)[[4]])
-(mu <- coef(eqn614e_ols)[[2]] / lambda)
-(delta <- coef(eqn614e_ols)[[3]] / (mu * lambda) + 1)
+(eqn614e_ols  <- lm(data = filter(kopcke, year(date) > 1956),
+                    ie ~ y + lag(y) + lag(ie)))
+(lambda <- 1 - coef(eqn614e_ols)[["lag(ie)"]])
+(mu <- coef(eqn614e_ols)[["y"]] / lambda)
+(delta <- coef(eqn614e_ols)[["lag(y)"]] / (mu * lambda) + 1)
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane_orcutt(eqn614e_ols))
 ## dwtest(eqn614e_co)
-(lambda <- 1 - coef(eqn614e_co)[[4]])
-(mu <- coef(eqn614e_co)[[2]] / lambda)
-(delta <- coef(eqn614e_co)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_co)[["lag(ie)"]])
+(mu <- coef(eqn614e_co)[["y"]] / lambda)
+(delta <- coef(eqn614e_co)[["lag(y)"]] / (mu * lambda) + 1)
+
+## No good!!
 rmses <- hildreth_lu(eqn614e_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[[4]])
-(mu <- coef(lmqfd.lm)[[2]] / lambda)
-(delta <- coef(lmqfd.lm)[[3]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[["Xqfdlag(ie)"]])
+(mu <- coef(lmqfd.lm)[["Xqfdy"]] / lambda)
+(delta <- coef(lmqfd.lm)[["Xqfdlag(y)"]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
 
 
 
 
 ## Try without constant
-(eqn614e_ols  <- lm(data = dplyr::filter(kopcke, year(date) > 1956),
-                    ie ~ 0+ y + dplyr::lag(y) + dplyr::lag(ie)))
-(lambda <- 1 - coef(eqn614e_ols)[[3]])
-(mu <- coef(eqn614e_ols)[[1]] / lambda)
-(delta <- coef(eqn614e_ols)[[2]] / (mu * lambda) + 1)
+(eqn614e_ols  <- lm(data = filter(kopcke, year(date) > 1956),
+                    ie ~ 0+ y + lag(y) + lag(ie)))
+(lambda <- 1 - coef(eqn614e_ols)[["lag(ie)"]])
+(mu <- coef(eqn614e_ols)[["y"]] / lambda)
+(delta <- coef(eqn614e_ols)[["lag(y)"]] / (mu * lambda) + 1)
 dwtest(eqn614e_ols)
 (eqn614e_co  <- cochrane_orcutt(eqn614e_ols))
 ## dwtest(eqn614e_co)
-(lambda <- 1 - coef(eqn614e_co)[[3]])
-(mu <- coef(eqn614e_co)[[1]] / lambda)
-(delta <- coef(eqn614e_co)[[2]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(eqn614e_co)[["lag(ie)"]])
+(mu <- coef(eqn614e_co)[["y"]] / lambda)
+(delta <- coef(eqn614e_co)[["lag(y)"]] / (mu * lambda) + 1)
 
+## No good
 rmses <- hildreth_lu(eqn614e_ols)
 summary(lmqfd.lm)
-(lambda <- 1 - coef(lmqfd.lm)[[3]])
-(mu <- coef(lmqfd.lm)[[1]] / lambda)
-(delta <- coef(lmqfd.lm)[[2]] / (mu * lambda) + 1)
+(lambda <- 1 - coef(lmqfd.lm)[["Xqfdlag(ie)"]])
+(mu <- coef(lmqfd.lm)[["Xqfdy"]] / lambda)
+(delta <- coef(lmqfd.lm)[["Xqfdlag(y)"]] / (mu * lambda) + 1)
 rmses %>% ggplot(aes(x = rho, y = rmse)) + geom_line()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
