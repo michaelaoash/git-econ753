@@ -29,10 +29,10 @@ inc  <- income %>% mutate(
                    )
 
 ## Source: https://www.nytimes.com/interactive/2022/11/08/us/elections/results-massachusetts-question-1-create-new-income-tax-level.html
-q1times  <- read_tsv(here("tidycensus-demo/mass-2022-question-1","question-1.csv"))
+q1times  <- read_tsv(here("lab-12-gis-intro/mass-2022-question-1","question-1.csv"))
 
 ## Source: https://www.bostonglobe.com/elections/2022/massachusetts/question/1%20-%20create%20new%20income%20tax%20level/
-q1globe  <- read_tsv(here("tidycensus-demo/mass-2022-question-1","question-1-globe.csv"))
+q1globe  <- read_tsv(here("lab-12-gis-intro/mass-2022-question-1","question-1-globe.csv"))
 q1globe  <- q1globe %>%
     mutate(No = ifelse(Type1=="No", Votes1, Votes2),
            Yes = ifelse(Type1=="Yes", Votes1, Votes2),
@@ -58,3 +58,6 @@ q1inc %>% ggplot(aes(x=`Pct family income > $200K`,y=`Pct Yes on 1`)) + geom_poi
 limit <- max( abs(q1inc$`Pct Yes on 1` - 0.5), na.rm=TRUE )
 limit <- c(0.5-limit,0.5+limit)
 q1inc %>% ggplot() + geom_sf(aes(geometry=geometry, fill=`Pct Yes on 1`)) + scale_fill_distiller(type = "div", limit = limit) + geom_sf(aes(geometry=geometry, color=poorrich),alpha=0)
+
+
+q1inc %>% ggplot() + geom_sf(aes(geometry=geometry, fill=`Pct Yes on 1`)) + scale_fill_distiller(type = "div", limit = limit) + geom_sf(aes(geometry=geometry, color=poorrich),alpha=0) + geom_sf_text(aes(geometry=geometry, label=Town))
