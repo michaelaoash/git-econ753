@@ -179,7 +179,7 @@ cps %>% ggplot(aes(x=ed, y=exp(lnwage), color=factor(fe), size=ex)) + geom_point
 cps85 <- filter(cps,year==1985)
 cps78 <- filter(cps,year==1978)
 
-## List the objects in R (there should be three)
+## List the objects in R
 ls()
 
 
@@ -247,3 +247,10 @@ attr.b %*% coef.b - attr.w %*% coef.w
 (attr.b - attr.w) %*% coef.w / (attr.b %*% coef.b - attr.w %*% coef.w)
 (coef.b - coef.w) %*% attr.b / (attr.b %*% coef.b - attr.w %*% coef.w)
 
+
+
+## Number of children and women's wages (selection issue)
+cps78 %>% filter(fe == 1) %>% ggplot(aes(y = wage, x = ndep)) + geom_point() + geom_smooth(method = "lm")
+summary(lm(lnwage ~ ed + ex + exsq + nonwh + hisp + (ndep > 0), data = cps78 %>% filter(fe == 1)))
+summary(lm(lnwage ~ ed + ex + exsq + nonwh + hisp + ndep, data = cps78 %>% filter(fe == 1)))
+summary(lm(lnwage ~ ed + ex + exsq + nonwh + hisp + ndep, data = cps78 %>% filter(fe == 1, ndep > 0)))
