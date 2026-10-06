@@ -123,7 +123,7 @@ sqrt(diag(-solve(poissonll2_opt$hessian)))
 
 
 kennan$predicted_strike_count <- exp(poissonll2_opt$par[1] + poissonll2_opt$par[2]*kennan$IP)
-kennan %>% ggplot(aes(x = date, y = strike_count)) + geom_point() + geom_line(data = rlip, aes(x = date, y = predicted_strike_count))
+kennan %>% ggplot(aes(x = date, y = strike_count)) + geom_point() + geom_line(aes(x = date, y = predicted_strike_count))
 
 
 ## Three parameter Poisson (constant and two covariates)
