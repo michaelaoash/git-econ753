@@ -15,7 +15,7 @@ with(babiesI, mean(bwt))
 with(babiesI, 1 / var(bwt))
 with(babiesI, sd(bwt))
 
-## Draw a sample from the population
+## Draw a sample of size 20 from the population
 bwt_smpl <- with(babiesI, sample(bwt, size = 20, replace = FALSE))
 
 (n <- length(bwt_smpl))
@@ -84,3 +84,9 @@ title(expression(paste("Prior and Posterior Distribution of h")), xlab=expressio
 hist(sqrt(1 / h[(burnin+1):length(h)]), xlim=c(10, 30), main="", xlab="")
 lines(sqrt(1 / x.h), 2.5*pi_h0)
 title(expression(paste("Prior and Posterior Distribution of ", sigma)), xlab=expression(sigma))
+
+
+## Copula of posterior
+library(tidyverse)
+posterior <- tibble(mu = mu[(burnin+1):length(mu)], sigma = sqrt(1/h[(burnin+1):length(h)]))
+ggplot(posterior, aes(x = mu, y = sigma)) + geom_bin2d()
