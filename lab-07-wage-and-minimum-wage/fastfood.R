@@ -12,7 +12,8 @@ fastfood.df  <- read_dta("ucla/fastfood.dta")
 fastfood.df  <- mutate(fastfood.df,
                        sheet = ifelse(sheet==407 & state==1,408,sheet)  )
 
-# Assuming your dataset is called 'data'
+
+## The following two pivot snippets were created by genai.umass.edu (October 20, 2026)
 data_long <- fastfood.df %>%
   select(sheet, state, empft, emppt, nmgrs, empft2, emppt2, nmgrs2) %>%
   pivot_longer(
@@ -32,6 +33,7 @@ data_long <- fastfood.df %>%
     names_pattern = "^(.+?)(2?)$"
   ) %>%
   mutate(time = if_else(time == "", 1, 2))
+
 
 
 fastfood1.df  <- mutate(fastfood.df, fte=empft + emppt/2 + nmgrs, fte2=empft2 + emppt2/2 + nmgrs2, dfte=fte2-fte)
