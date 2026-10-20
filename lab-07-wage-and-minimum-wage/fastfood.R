@@ -6,10 +6,33 @@ library(lmtest)
 
 ## Warning: sheet 407 is used twice (once in NJ (1), once in PA (0) )
 
-fastfood.df  <- read_dta("lab-07-wage-and-minimum-wage/ucla/fastfood.dta")
+fastfood.df  <- read_dta("ucla/fastfood.dta")
+## fastfood.df  <- read_dta("lab-07-wage-and-minimum-wage/ucla/fastfood.dta")
 ## fastfood.df  <- subset(fastfood.df, status2 == 1 | status2==3)
 fastfood.df  <- mutate(fastfood.df,
                        sheet = ifelse(sheet==407 & state==1,408,sheet)  )
+
+# Assuming your dataset is called 'data'
+data_long <- fastfood.df %>%
+  select(sheet, state, empft, emppt, nmgrs, empft2, emppt2, nmgrs2) %>%
+  pivot_longer(
+    cols = -c(sheet, state),
+    names_to = c("variable", "time"),
+    names_pattern = "^(.+?)(2?)$",
+    values_to = "value"
+  ) %>%
+  mutate(time = if_else(time == "", "1", "2"))
+
+
+data_long <- fastfood.df %>%
+  select(sheet, state, empft, emppt, nmgrs, empft2, emppt2, nmgrs2) %>%
+  pivot_longer(
+    cols = -c(sheet, state),
+    names_to = c(".value", "time"),
+    names_pattern = "^(.+?)(2?)$"
+  ) %>%
+  mutate(time = if_else(time == "", 1, 2))
+
 
 fastfood1.df  <- mutate(fastfood.df, fte=empft + emppt/2 + nmgrs, fte2=empft2 + emppt2/2 + nmgrs2, dfte=fte2-fte)
 
