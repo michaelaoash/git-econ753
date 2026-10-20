@@ -1,0 +1,8 @@
+Play with the gamma distribution
+https://www.desmos.com/calculator/vk2tqrxpk5
+
+Horse kick data analysis (from Rob Taylor)
+https://github.com/michaelaoash/horse-kick-analysis.git
+
+Horse kick Bayesian Poisson essay (Rob Taylor)
+https://medium.com/@dataforyou/kicking-it-with-a-bayesian-gamma-poisson-model-9263fd7a6af5
