@@ -10,6 +10,9 @@ library(nlme)
 library(here)
 library(dynlm)
 options(scipen = 10000)
+library(DT)
+library(servr)
+
 
 rm(list = ls())
 
@@ -60,9 +63,10 @@ kopcke <- mutate(kopcke,
                      ien_alt = lead(kelag) - kelag, isn_alt = lead(kslag) - kslag,
                      ck =  (ce * kelag + cs * kslag) / (kelag + kslag))
 
-
+datatable(kopcke)
 kopcke.melt <- kopcke %>% pivot_longer(cols = -c(rdate, kopcke_dt, date))
 
+datatable(kopcke.melt)
 
 n <- ggplot(subset(kopcke.melt, name=="jes" | name=="ies" | name=="kes"),
             aes(x = date, y = value, color = name)) +

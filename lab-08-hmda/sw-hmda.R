@@ -1,11 +1,11 @@
 pdf(file = "hmda-roc.pdf", width = 0, height = 0, paper = "USr")
 ## Some work with the Home Mortgage Disclosure Act Data (Munnell et al. 1992 via Stock and Watson, Chapter 11)
-library(tidyverse)
-library(haven)
-library(janitor)
-library(lmtest)
-library(party)
-library(here)
+library(tidyverse) # Hadley Wickham's data and formatting packages
+library(haven) # Read foreign data formats, e.g., Stata
+library(janitor) # Nice tabulation routines
+library(lmtest) # For various coefficient tests
+library(party) # Classification trees
+library(here) # Manage the location of files in the project
 
 ## Read HMDA data from Stata file.
 hmda <- read_dta(here("lab-08-hmda", "hmda_sw.dta"))
@@ -79,16 +79,33 @@ Hmisc::describe( subset(hmda,
 
 
 ## Contingency table
-table(hmda$race, hmda$deny.f)
-
-with(hmda, table(race, deny.f))
+## Using tidyverse with cross-tabulation and counting
+hmda %>%
+    count(race, deny.f) %>%
+    pivot_wider(names_from = deny.f, values_from = n, values_fill = 0)
 
 ## What is the difference between row and column percents?
-prop.table(table(hmda$race, hmda$deny.f), 1)
-prop.table(table(hmda$race, hmda$deny.f), 2)
-prop.table(table(hmda$race, hmda$deny.f))
+## Row percentages (within each race)
+hmda %>%
+    count(race, deny.f) %>%
+    group_by(race) %>%
+    mutate(pct = 100 * n / sum(n)) %>%
+    select(race, deny.f, pct)
 
+## Column percentages (within each denial outcome)
+hmda %>%
+    count(race, deny.f) %>%
+    group_by(deny.f) %>%
+    mutate(pct = 100 * n / sum(n)) %>%
+    select(race, deny.f, pct)
 
+## Overall percentages
+hmda %>%
+    count(race, deny.f) %>%
+    mutate(pct = 100 * n / sum(n)) %>%
+    select(race, deny.f, pct)
+
+## Using janitor for more polished output
 hmda %>% tabyl(race, deny.f)
 
 hmda %>% tabyl(race, deny.f) %>% adorn_title()
@@ -135,6 +152,11 @@ hmda_logit <- glm(deny ~ race + pi_rat + hse_inc + ltv_med + ltv_high
 summary(hmda_logit)
 coeftest(hmda_logit, vcov = vcovHC(hmda_logit, type = "HC1"))
 
+
+## Race only model (which can be done "by hand" with logit)
+hmda_logit <- glm(deny ~ race, data=hmda, family=binomial(link = logit))
+summary(hmda_logit)
+coeftest(hmda_logit, vcov = vcovHC(hmda_logit, type = "HC1"))
 
 
 ## Assessing model performance: Receiver Operating Characteristic (ROC) curve
